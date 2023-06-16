@@ -1,0 +1,43 @@
+# Space navigation
+ctrl + cmd - 1 : yabai -m space --focus 1 
+ctrl + cmd - 2 : yabai -m space --focus 2 
+ctrl + cmd - 3 : yabai -m space --focus 3
+ctrl + cmd - 4 : yabai -m space --focus 4 
+ctrl + cmd - 5 : yabai -m space --focus 5
+ctrl + cmd - n : yabai -m space --focus next
+ctrl + cmd - p : yabai -m space --focus prev
+
+# Window navigation
+ctrl + cmd - h : yabai -m window --focus west  || yabai -m display --focus west
+ctrl + cmd - j : yabai -m window --focus south || yabai -m display --focus south
+ctrl + cmd - k : yabai -m window --focus north || yabai -m display --focus north
+ctrl + cmd - l : yabai -m window --focus east  || yabai -m display --focus east
+ctrl + cmd - f : yabai -m window --focus first
+ctrl + cmd - g : yabai -m window --focus last
+
+# Float window
+ctrl + cmd - space : yabai -m window --toggle float
+
+# Zoom window
+ctrl + cmd + shift - f : yabai -m window --toggle zoom-fullscreen
+
+# Equalize size of windows
+ctrl + cmd + shift - e : yabai -m space --balance
+
+# Move window between spaces
+ctrl + cmd + shift - 1 : yabai -m window --space 1 && yabai -m space --focus 1
+ctrl + cmd + shift - 2 : yabai -m window --space 2 && yabai -m space --focus 2
+ctrl + cmd + shift - 3 : yabai -m window --space 3 && yabai -m space --focus 3
+ctrl + cmd + shift - 4 : yabai -m window --space 4 && yabai -m space --focus 4
+ctrl + cmd + shift - 5 : yabai -m window --space 5 && yabai -m space --focus 5
+ctrl + cmd + shift - p : yabai -m window --space prev && yabai -m space --focus prev
+ctrl + cmd + shift - n : yabai -m window --space next && yabai -m space --focus next
+
+# Move window in spaces
+ctrl + cmd + shift - h : yabai -m window --warp west 
+ctrl + cmd + shift - j : yabai -m window --warp south 
+ctrl + cmd + shift - k : yabai -m window --warp north 
+ctrl + cmd + shift - l : yabai -m window --warp east 
+
+# Open WezTerm 
+ctrl + cmd - t : wezterm start 
