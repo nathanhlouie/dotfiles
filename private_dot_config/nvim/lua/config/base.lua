@@ -3,6 +3,8 @@ vim.cmd("autocmd!")
 vim.scriptencoding = "utf-8"
 vim.opt.encoding = "utf-8"
 vim.opt.fileencoding = "utf-8"
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -19,6 +21,7 @@ vim.opt.completeopt = "menu,menuone,noselect"
 vim.opt.cmdheight = 1
 vim.opt.cursorline = true
 vim.opt.expandtab = true
+vim.opt.fillchars = { eob = ' ' }
 vim.opt.hlsearch = true
 vim.opt.ignorecase = true
 vim.opt.inccommand = "nosplit"
