@@ -6,6 +6,8 @@ brew upgrade
 
 brew upgrade --cask wezterm-nightly --no-quarantine --greedy-latest
 
+brew upgrade neovim --fetch-HEAD
+
 brew cleanup
 
 brew autoremove

@@ -1,112 +1,213 @@
 return {
-  {
-    "ggandor/flit.nvim",
-    event = "VeryLazy",
-    opts = {},
-  },
+	{
+		"folke/flash.nvim",
+		event = "VeryLazy",
+		opts = {},
+		keys = {
+			{
+				"s",
+				mode = { "n", "x", "o" },
+				function()
+					require("flash").jump()
+				end,
+			},
+			{
+				"S",
+				mode = { "n", "o", "x" },
+				function()
+					require("flash").treesitter()
+				end,
+			},
+			{
+				"r",
+				mode = "o",
+				function()
+					require("flash").remote()
+				end,
+			},
+			{
+				"R",
+				mode = { "o", "x" },
+				function()
+					require("flash").treesitter_search()
+				end,
+			},
+			{
+				"<c-s>",
+				mode = { "c" },
+				function()
+					require("flash").toggle()
+				end,
+			},
+		},
+	},
 
-  {
-    "lewis6991/gitsigns.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    opts = {
-      signs = {
-        add = { text = "▎" },
-        change = { text = "▎" },
-        delete = { text = "" },
-        topdelete = { text = "" },
-        changedelete = { text = "▎" },
-        untracked = { text = "▎" },
-      },
-      on_attach = function(buffer)
-        local gs = package.loaded.gitsigns
+	{
+		"rmagatti/goto-preview",
+		event = "VeryLazy",
+		opts = {
+			default_mappings = true,
+		},
+	},
 
-        local function map(mode, l, r)
-          vim.keymap.set(mode, l, r, { buffer = buffer })
-        end
+	{
+		"theprimeagen/harpoon",
+		event = "VeryLazy",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		opts = {
+			global_settings = {
+				tabline = true,
+			},
+			menu = {
+				width = vim.api.nvim_win_get_width(0) - 4,
+			},
+		},
+		keys = function()
+			local custom = {
+				{
+					"<leader>m",
+					function()
+						require("harpoon.mark").add_file()
+					end,
+				},
+				{
+					"<leader>h",
+					function()
+						require("harpoon.ui").toggle_quick_menu()
+					end,
+				},
+				{
+					"<leader>n",
+					function()
+						require("harpoon.ui").nav_next()
+					end,
+				},
+				{
+					"<leader>p",
+					function()
+						require("harpoon.ui").nav_prev()
+					end,
+				},
+			}
 
-        map("n", "]h", gs.next_hunk)
-        map("n", "[h", gs.prev_hunk)
-        map({ "n", "v" }, "<leader>ghs", ":Gitsigns stage_hunk<CR>")
-        map({ "n", "v" }, "<leader>ghr", ":Gitsigns reset_hunk<CR>")
-        map("n", "<leader>ghS", gs.stage_buffer)
-        map("n", "<leader>ghu", gs.undo_stage_hunk)
-        map("n", "<leader>ghR", gs.reset_buffer)
-        map("n", "<leader>ghp", gs.preview_hunk)
-        map("n", "<leader>ghb", function() gs.blame_line({ full = true }) end)
-        map("n", "<leader>ghd", gs.diffthis)
-        map("n", "<leader>ghD", function() gs.diffthis("~") end)
-        map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>")
-      end,
-    },
-  },
+			for i = 1, 9 do
+				table.insert(custom, {
+					string.format("<leader>%s", i),
+					function()
+						require("harpoon.ui").nav_file(i)
+					end,
+				})
+			end
 
-  {
-    "ThePrimeagen/harpoon",
-    lazy = false,
-    opts = {
-      tabline = true,
-    },
-    keys = {
-      { "<leader>m", function() require("harpoon.mark").add_file() end },
-      { "<leader>o", function() require("harpoon.ui").toggle_quick_menu() end },
-      { "<leader>1", function() require("harpoon.ui").nav_file(1) end },
-      { "<leader>2", function() require("harpoon.ui").nav_file(2) end },
-      { "<leader>3", function() require("harpoon.ui").nav_file(3) end },
-      { "<leader>4", function() require("harpoon.ui").nav_file(4) end },
-      { "<leader>5", function() require("harpoon.ui").nav_file(5) end },
-      { "<leader>n", function() require("harpoon.ui").nav_next() end },
-      { "<leader>p", function() require("harpoon.ui").nav_prev() end },
-    },
-    init = function()
-      vim.api.nvim_set_hl(0, "HarpoonInactive", { bg = "NONE", fg = "#6e738d" })
-      vim.api.nvim_set_hl(0, "HarpoonActive", { bg = "NONE", fg = "#cad3f5" })
-      vim.api.nvim_set_hl(0, "HarpoonNumberActive", { bg = "NONE", fg = "#8bd5ca" })
-      vim.api.nvim_set_hl(0, "HarpoonNumberInactive", { bg = "NONE", fg = "#c6a0f6" })
-    end,
-  },
+			return custom
+		end,
+		config = function(_, opts)
+			require("harpoon").setup(opts)
+			vim.api.nvim_set_hl(0, "HarpoonInactive", { bg = "NONE", fg = "#6e738d" })
+			vim.api.nvim_set_hl(0, "HarpoonActive", { bg = "NONE", fg = "#cad3f5" })
+			vim.api.nvim_set_hl(0, "HarpoonNumberActive", { bg = "NONE", fg = "#8bd5ca" })
+			vim.api.nvim_set_hl(0, "HarpoonNumberInactive", { bg = "NONE", fg = "#c6a0f6" })
+		end,
+	},
 
-  {
-    "ggandor/leap.nvim",
-    event = "VeryLazy",
-    config = function()
-      require("leap").add_default_mappings(true)
-    end
-  },
+	{
+		"lewis6991/hover.nvim",
+		event = "VeryLazy",
+		opts = {
+			init = function()
+				require("hover.providers.lsp")
+			end,
+			preview_opts = {
+				border = nil,
+			},
+			preview_window = false,
+			title = true,
+		},
+		keys = {
+			{
+				"K",
+				function()
+					require("hover").hover()
+				end,
+			},
+			{
+				"gK",
+				function()
+					require("hover").hover_select()
+				end,
+			},
+		},
+	},
 
-  {
-    "stevearc/oil.nvim",
-    lazy = false,
-    opts = {},
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    keys = {
-      { "<leader>-", function() require("oil").open() end },
-    },
-  },
+	{
+		"windwp/nvim-autopairs",
+		event = "InsertEnter",
+		opts = {},
+	},
 
-  {
-    "nvim-pack/nvim-spectre",
-    cmd = "Spectre",
-    opts = { open_cmd = "noswapfile vnew" },
-    keys = {
-      { "<leader>sr", function() require("spectre").open() end },
-    },
-  },
+	{
+		"nvim-pack/nvim-spectre",
+		opts = { open_cmd = "noswapfile vnew" },
+		keys = {
+			{
+				"<leader>s",
+				function()
+					require("spectre").open()
+				end,
+			},
+		},
+	},
 
-  {
-    "RRethy/vim-illuminate",
-    event = { "BufReadPost", "BufNewFile" },
-    opts = {
-      large_file_cutoff = 2000,
-      large_file_overrides = {
-        providers = { "lsp" },
-      },
-    },
-    keys = {
-      { "]]", function() require("illuminate").goto_next_reference(false) end },
-      { "[[", function() require("illuminate").goto_prev_reference(false) end },
-    },
-    config = function(_, opts)
-      require("illuminate").configure(opts)
-    end,
-  },
+	{
+		"kylechui/nvim-surround",
+		event = "VeryLazy",
+		opts = {},
+	},
+
+	{
+		"stevearc/oil.nvim",
+		opts = {
+			view_options = {
+				show_hidden = true,
+			},
+		},
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		keys = {
+			{
+				"<leader>-",
+				function()
+					require("oil").open()
+				end,
+			},
+		},
+	},
+
+	{
+		"RRethy/vim-illuminate",
+		event = { "BufReadPost", "BufNewFile" },
+		opts = {
+			delay = 200,
+			large_file_cutoff = 2000,
+			large_file_overrides = {
+				providers = { "lsp" },
+			},
+		},
+		keys = {
+			{
+				"]]",
+				function()
+					require("illuminate").goto_next_reference()
+				end,
+			},
+			{
+				"[[",
+				function()
+					require("illuminate").goto_prev_reference()
+				end,
+			},
+		},
+		config = function(opts)
+			require("illuminate").configure(opts)
+		end,
+	},
 }

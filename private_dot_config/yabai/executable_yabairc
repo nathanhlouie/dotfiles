@@ -42,7 +42,7 @@ LAYOUT=(
 )
 
 MOUSE=(
-  mouse_modifier fn
+  mouse_modifier cmd
   mouse_action1 move
   mouse_action2 resize
   mouse_drop_action swap
@@ -54,4 +54,4 @@ yabai -m config "${BORDERS[@]}"
 yabai -m config "${LAYOUT[@]}"
 yabai -m config "${MOUSE[@]}"
 
-yabai -m rule --add app!="^(Google Chrome|Discord|Spotify|WezTerm|wezterm-gui|VSCodium)$" manage=off
+yabai -m rule --add app!="^(Google Chrome|Discord|Obsidian|Spotify|WezTerm|wezterm-gui|VSCodium)$" manage=off

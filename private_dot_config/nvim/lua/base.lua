@@ -5,6 +5,7 @@ vim.opt.encoding = "utf-8"
 vim.opt.fileencoding = "utf-8"
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
+vim.g.python3_host_prog = "$HOME/.pyenv/versions/neovim/bin/python"
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -13,23 +14,24 @@ vim.g.markdown_recommended_style = 0
 
 vim.opt.autoindent = true
 vim.opt.autowrite = true
-vim.opt.background = "dark"
+-- vim.opt.background = "dark"
 vim.opt.backspace = { "start", "eol", "indent" }
 vim.opt.backup = false
 vim.opt.clipboard = "unnamedplus"
 vim.opt.completeopt = "menu,menuone,noselect"
+vim.opt.conceallevel = 2
+vim.opt.concealcursor = "nc"
 vim.opt.cmdheight = 1
 vim.opt.cursorline = true
 vim.opt.expandtab = true
-vim.opt.fillchars = { eob = ' ' }
+vim.opt.fillchars = { eob = " " }
 vim.opt.hlsearch = true
 vim.opt.ignorecase = true
 vim.opt.inccommand = "nosplit"
-vim.opt.laststatus = 0
 vim.opt.mouse = "a"
 vim.opt.number = true
-vim.opt.path:append { "**" }
-vim.opt.pumblend = 10
+vim.opt.path:append({ "**" })
+vim.opt.pumblend = 0
 vim.opt.pumheight = 10
 vim.opt.relativenumber = true
 vim.opt.scrolloff = 4
@@ -50,4 +52,4 @@ vim.opt.termguicolors = true
 vim.opt.title = true
 vim.opt.wildmode = "longest:full,full"
 vim.opt.winminwidth = 5
-vim.opt.wrap = false
+vim.opt.wrap = true
