@@ -1,8 +1,8 @@
 # dotfiles
 
-![Screenshot 2023-08-01 at 23 13 27](https://github.com/nathan-louie/dotfiles/assets/53024905/904e6818-2783-4cec-bfda-dfe71309e1d0)
+![Screenshot 2023-08-01 at 23 13 27](https://github.com/nathanhlouie/dotfiles/assets/53024905/2757809b-5a65-4bcd-9afb-f4000875aabf)
 
-![Screenshot 2023-08-01 at 23 38 41](https://github.com/nathan-louie/dotfiles/assets/53024905/fcc6c99b-66f7-47b9-9be3-b8bb5fff6794)
+![Screenshot 2023-08-01 at 23 38 41](https://github.com/nathanhlouie/dotfiles/assets/53024905/eea462e2-784c-4edc-9a40-dd3ba7fb3283)
 
 Uses the [chezmoi](https://github.com/twpayne/chezmoi) dotfile manager.
 
