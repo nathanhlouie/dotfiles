@@ -1,0 +1,17 @@
+theme = sekai-sky
+
+cursor-style = block
+cursor-style-blink = false
+
+font-family = RobotoMono Nerd Font
+font-size = 24
+
+macos-icon = custom-style
+macos-icon-frame = beige
+macos-icon-ghost-color = EBF0F5
+macos-icon-screen-color = 91A5C8
+
+macos-titlebar-proxy-icon = hidden
+shell-integration-features = no-cursor
+
+window-padding-x = 8
