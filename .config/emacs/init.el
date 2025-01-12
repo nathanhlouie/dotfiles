@@ -34,4 +34,34 @@
 
   :hook
   (prog-mode . display-line-numbers-mode)
+
+  :config
+  (defun skip-these-buffers (_window buffer _bury-or-kill)
+	"Function for `switch-to-prev-buffer-skip'."
+	(string-match "\\*[^*]+\\*" (buffer-name buffer)))
+  (setq switch-to-prev-buffer-skip 'skip-these-buffers)
+
+  (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 130)
+  (setq mac-command-modifier 'meta)
+
+  (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+
+  :init
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+
+  (when scroll-bar-mode
+	(scroll-bar-mode -1))
+
+  (global-hl-line-mode 1)
+  (global-auto-revert-mode 1)
+  (indent-tabs-mode -1)
+  (recentf-mode 1)
+  (savehist-mode 1)
+  (save-place-mode 1)
+  (winner-mode 1)
+  (xterm-mouse-mode 1)
+  (file-name-shadow-mode 1)
+
+  (modify-coding-system-alist 'file "" 'utf-8)
   )

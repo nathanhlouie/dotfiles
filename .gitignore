@@ -1,3 +1,4 @@
 .DS_Store
-eln-cache/
-auto-save-list/
+.config/emacs/auto-save-list/
+.config/emacs/eln-cache/
+.config/emacs/history
