@@ -2,3 +2,5 @@
 .config/emacs/auto-save-list/
 .config/emacs/eln-cache/
 .config/emacs/history
+.config/emacs/places
+.config/emacs/recentf

@@ -41,7 +41,7 @@
 	(string-match "\\*[^*]+\\*" (buffer-name buffer)))
   (setq switch-to-prev-buffer-skip 'skip-these-buffers)
 
-  (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 130)
+  (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 240 :weight 'medium)
   (setq mac-command-modifier 'meta)
 
   (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
