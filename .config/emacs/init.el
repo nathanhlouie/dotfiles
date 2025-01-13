@@ -12,7 +12,7 @@
   (create-lockfiles nil)
   (delete-by-moving-to-trash t)
   (delete-selection-mode 1)
-  (display-line-numbers-type 'relative)
+  (display-line-numbers-type t)
   (global-auto-revert-non-file-buffers t)
   (history-length 25)
   (inhibit-startup-message t)
@@ -63,5 +63,44 @@
   (xterm-mouse-mode 1)
   (file-name-shadow-mode 1)
 
-  (modify-coding-system-alist 'file "" 'utf-8)
-  )
+  (modify-coding-system-alist 'file "" 'utf-8))
+
+(use-package window
+  :ensure nil
+  :custom
+  (display-buffer-alist
+   '(
+	 ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|[Hh]elp\\|Messages\\|Bookmark List\\|Ibuffer\\|Occur\\|eldoc.*\\)\\*"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 0))
+
+     ("\\*\\(lsp-help\\)\\*"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 0))
+     
+     ("\\*\\(Flymake diagnostics\\|xref\\|ivy\\|Swiper\\|Completions\\)"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 1))
+	 )))
+
+(use-package dired
+  :ensure nil
+  :custom
+  (dired-listing-switches "-lah --group-directories-first")
+  (dired-dwim-target t)
+  (dired-guess-shell-alist-user
+   '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open")
+     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open")
+     (".*" "open" "xdg-open")))
+  (dired-kill-when-opening-new-dired-buffer t)
+  :config
+  (when (eq system-type 'darwin)
+    (let ((gls (executable-find "gls")))
+      (when gls
+        (setq insert-directory-program gls)))))
