@@ -40,4 +40,49 @@
 (elpaca elpaca-use-package
   (elpaca-use-package-mode))
 
+(use-package emacs
+  :ensure nil
+  :custom
+  (auto-save-default nil)
+  (column-number-mode t)
+  (create-lockfiles nil)
+  (delete-by-moving-to-trash t)
+  (delete-selection-mode 1)
+  (display-line-numbers-type t)
+  (global-auto-revert-non-file-buffers t)
+  (history-length 25)
+  (ispell-dictionary "en_US")
+  (make-backup-files nil)
+  (pixel-scroll-precision-mode t)
+  (pixel-scroll-precision-use-momentum nil)
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-language-environment "English")
+  (set-terminal-coding-system 'utf-8)
+  (split-width-threshold 300)
+  (switch-to-buffer-obey-display-actions t)
+  (tab-always-indent 'complete)
+  (tab-width 4)
+  (treesit-font-lock-level 4)
+  (truncate-lines t)
+  (use-dialog-box nil)
+  (use-short-answers t)
+  (warning-minimum-level :emergency)
+
+  :hook
+  (prog-mode . display-line-numbers-mode)
+
+  :config
+  (defun skip-these-buffers (_window buffer _bury-or-kill)
+	"Function for `switch-to-prev-buffer-skip'."
+	(string-match "\\*[^*]+\\*" (buffer-name buffer)))
+  (setq switch-to-prev-buffer-skip 'skip-these-buffers)
+
+  (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 240 :weight 'medium)
+  (setq mac-command-modifier 'meta)
+
+  (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+
+  )
 

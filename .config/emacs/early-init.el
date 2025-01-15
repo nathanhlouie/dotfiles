@@ -12,9 +12,12 @@
       use-file-dialog nil
       inhibit-splash-screen t
       inhibit-startup-screen t
+      inhibit-startup-message t
       inhibit-x-resources t
       inhibit-startup-echo-area-message user-login-name
-      inhibit-startup-buffer-menu t)
+      inhibit-startup-buffer-menu t
+      initial-scratch-message ""
+      initial-buffer-choice t)
 
 (menu-bar-mode 1)
 (scroll-bar-mode -1)
