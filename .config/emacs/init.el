@@ -81,8 +81,13 @@
 
   (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 240 :weight 'medium)
   (setq mac-command-modifier 'meta)
-
   (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
   )
 
+(use-package vertico
+  :ensure t
+  :hook
+  (after-init . vertico-mode))
+
+(eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
