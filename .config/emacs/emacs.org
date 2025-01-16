@@ -1,9 +1,6 @@
 #+TITLE: Emacs Literate Configuration
 #+AUTHOR: Nathan Louie
 #+STARTUP: content indent hidestars
-#+OPTIONS: ':t toc:nil
-
-#+toc: headlines 8
 
 ** Why Emacs?
 
