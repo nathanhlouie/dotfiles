@@ -1,0 +1,19 @@
+#+TITLE: Emacs Literate Configuration
+#+AUTHOR: Nathan Louie
+#+STARTUP: content indent
+#+OPTIONS: toc:nil
+
+** Why use a literate configuration?
+
+Documentation is a gift to your future self when you come back a month or years from now and wonder what the hell you wrote. This configuration is no different. The benefits of writing documentation heavily outweighs, in my opinion, the cost of having to re-read and search for why a certain configuration was set that way by your past self.
+
+To modify this setup, edit this Org file and evaluate the code block changed with =C-c C-c= or tangle the whole file with =C-c C-v C-t=.
+
+#+begin_src emacs-lsip :tangle no :results none
+(org-babel-tangle)
+#+end_src
+
+#+toc: headlines 8
+
+
+
