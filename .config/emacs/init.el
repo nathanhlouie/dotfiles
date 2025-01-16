@@ -91,3 +91,21 @@
   (after-init . vertico-mode))
 
 (eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
+(setq frame-resize-pixelwise t
+      frame-inhibit-implied-resize t
+      frame-title-format '("%b")
+      ring-bell-function 'ignore
+      use-dialog-box t
+      use-file-dialog nil
+      inhibit-splash-screen t
+      inhibit-startup-screen t
+      inhibit-startup-message t
+      inhibit-x-resources t
+      inhibit-startup-echo-area-message user-login-name
+      inhibit-startup-buffer-menu t
+      initial-scratch-message ""
+      initial-buffer-choice t)
+
+(menu-bar-mode 1)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
