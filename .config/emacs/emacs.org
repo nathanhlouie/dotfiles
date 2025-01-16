@@ -3,9 +3,19 @@
 #+STARTUP: content indent
 #+OPTIONS: toc:nil
 
+** Why Emacs?
+
+Emacs has been around longer than I've been alive. It's not a stretch to say that Emacs will be continue to be around for my whole career.
+- Each package has its own niche:
+  - Not unlike the Vim/Neovim ecosystem, where there are a handful of plugins that claim to have the same purpose. At that point, how do you choose between them? I like the clear direction of the Emacs package ecosystem.
+- The direction for Emacs as a whole is stable, albeit slow at times:
+  - It feels okay to stay, say on Emacs 29.X, for a long time without *having* to switch to the bleeding-edge version.
+- I can have the exact experience I want, in the way that I want it:
+  - Personal customization on Emacs is endless. On top of that, using ELisp is fun and will /hopefully/ get me to use more Lispy languages in the future.
+
 ** Why use a literate configuration?
 
-Documentation is a gift to your future self when you come back a month or years from now and wonder what the hell you wrote. This configuration is no different. The benefits of writing documentation heavily outweighs, in my opinion, the cost of having to re-read and search for why a certain configuration was set that way by your past self.
+Documentation is a gift to your future self when you come back a month or years from now and wonder what the hell you wrote: this configuration is no different. The benefits of writing documentation heavily outweighs, in my opinion, the cost of having to re-read and search for why a certain configuration was set that way by your past self.
 
 To modify this setup, edit this Org file and evaluate the code block changed with =C-c C-c= or tangle the whole file with =C-c C-v C-t=.
 
