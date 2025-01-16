@@ -1,6 +1,6 @@
 #+TITLE: Emacs Literate Configuration
 #+AUTHOR: Nathan Louie
-#+STARTUP: content indent
+#+STARTUP: content indent hidestars
 #+OPTIONS: toc:nil
 
 ** Why Emacs?
@@ -19,11 +19,28 @@ Documentation is a gift to your future self when you come back a month or years 
 
 To modify this setup, edit this Org file and evaluate the code block changed with =C-c C-c= or tangle the whole file with =C-c C-v C-t=.
 
-#+begin_src emacs-lsip :tangle no :results none
+#+begin_src emacs-lisp :tangle no :results none
 (org-babel-tangle)
 #+end_src
 
 #+toc: headlines 8
 
+* Emacs build
+:PROPERTIES:
+:CUSTOM_ID: emacs_build
+:END:
+
+I use [[https://bitbucket.org/mituharu/emacs-mac/overview][emacs-mac]] on OSX. Specifically, I use:
+
+#+begin_src bash :tangle no :results none
+  brew install emacs-mac --with-native-comp --with-starter --with-mac-metal --with-imagemagick --with-librsvg --with-emacs-big-sur-icon
+#+end_src
+
+** Why emacs-mac over emacs-plus?
+- It feels more native to OSX
+- Frames are properly behaved with window managers
+- Native PDF and stipple display
+- Less of a headache using native compilation (although this may have changed since I last tried emacs-plus)
+- I have no need for emacsclient
 
 
