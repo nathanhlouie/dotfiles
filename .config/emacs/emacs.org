@@ -154,12 +154,14 @@ Disable everything Emacs does on startup.
 *** Hide UI components
 
 #+begin_src emacs-lisp
-  (setq pop-up-windows nil
-		use-dialog-box nil
-		use-file-dialog nil
-		use-short-answers t
-		show-help-function nil
-		warning-minimum-level :emergency)
+  (setq cursor-in-non-selected-windows nil
+	indicate-empty-lines nil
+	pop-up-windows nil
+	use-dialog-box nil
+	use-file-dialog nil
+	use-short-answers t
+	show-help-function nil
+	warning-minimum-level :emergency)
 
   (tool-bar-mode -1)
   (tooltip-mode -1)
@@ -169,7 +171,9 @@ Disable everything Emacs does on startup.
 Since the menu-bar is desktop-wide on OSX, see the [[https://bitbucket.org/mituharu/emacs-mac/src/892fa7b2501a403b4f0aea8152df9d60d63f391a/doc/emacs/macport.texi?at=master#macport.texi-529][documentation]] for the following:
 
 #+begin_src emacs-lisp
-  (menu-bar-mode 1)
+  (if (display-graphic-p)
+      (menu-bar-mode 1)
+    (menu-bar-mode -1))
 #+end_src
 
 *** Decluttering files
@@ -198,6 +202,34 @@ I have no need for backup and lock files, but auto-save files are still handy to
   (setq ispell-dictionary "en_US")
 #+end_src
 
+*** OSX Specific
+
+#+begin_src emacs-lisp
+  (when (eq system-type 'darwin)
+    (setq ns-use-native-fullscreen t
+	  mac-option-key-is-meta nil
+	  mac-command-key-is-meta t
+	  mac-command-modifier 'meta
+	  mac-option-modifier nil
+	  mac-use-title-bar nil))
+#+end_src
+
+Makes sure that clipboard works properly in TTY.
+
+#+begin_src emacs-lisp
+  (defun copy-from-osx ()
+    (shell-command-to-string "pbpaste"))
+  (defun paste-to-osx (text &optional push)
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+	(process-send-string proc text)
+	(process-send-eof proc))))
+  (when (and (not (display-graphic-p))
+	     (eq system-type 'darwin))
+    (setq interprogram-cut-function 'paste-to-osx)
+    (setq interprogram-paste-function 'copy-from-osx))
+#+end_src
+
 *** Editing
 
 Load concurrent changes to open files so they aren't deleted.
@@ -221,4 +253,85 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
   (setq-default indent-tabs-mode nil)
 #+end_src
 
+#+begin_src emacs-lisp
+  (global-hl-line-mode 1)
+#+end_src
 
+*** Miscellaneous
+
+#+begin_src emacs-lisp
+  (recentf-mode 1)
+  (savehist-mode 1)
+  (save-place-mode 1)
+  (winner-mode 1)
+  (xterm-mouse-mode 1)
+#+end_src
+
+** Vertico
+
+#+begin_src emacs-lisp
+  (setq enable-recursive-minibuffers t)
+
+  (use-package vertico
+    :ensure t
+    :hook
+    (after-init . vertico-mode)
+    :custom
+    (vertico-count 10)
+    (vertico-resize nil)
+    (advice-add #'vertico--format-candidate :around
+		(lambda (orig cand prefix suffix index _start)
+		  (setq cand (funcall orig cand prefix suffix index _start))
+		  (concat
+		   (if (= vertico--index index)
+		       (propertize "» " 'face '(:foreground "#80adf0" :weight bold))
+		     "  ")
+		   cand))))
+#+end_src
+
+** Orderless
+
+#+begin_src emacs-lisp
+  (use-package orderless
+    :ensure t
+    :defer t
+    :after vertico
+    :config
+    (setq completion-styles '(orderless basic)
+	  completion-category-defaults nil
+	  completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
+
+** Marginalia
+
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :ensure t
+    :hook
+    (after-init . marginalia-mode))
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp
+  (use-package consult
+    :ensure t
+    :defer t
+    :config
+    (advice-add #'register-preview :override #'consult-register-window)
+    (setq xref-show-xrefs-function #'consult-xref
+	  xref-show-definitions-function #'consult-xref))
+#+end_src
+
+** Embark
+
+#+begin_src emacs-lisp
+  (use-package embark
+    :ensure t
+    :defer t)
+
+  (use-package embark-consult
+    :ensure t
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
