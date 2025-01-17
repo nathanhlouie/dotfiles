@@ -1,43 +1,34 @@
 #+TITLE: Emacs Literate Configuration
 #+AUTHOR: Nathan Louie
-#+STARTUP: content indent hidestars
+#+DESCRIPTION: My personal Emacs configuration as a literate Org file
+#+STARTUP: overview
+#+PROPERTY: header-args :tangle "init.el"
 
-** Why Emacs?
+*** Why Emacs?
 
-Emacs has been around longer than I've been alive. It's not a stretch to say that Emacs will be continue to be around for my whole career.
-- Each package has its own niche:
-  - Not unlike the Vim/Neovim ecosystem, where there are a handful of plugins that claim to have the same purpose. At that point, how do you choose between them? I like the clear direction of the Emacs package ecosystem.
-- The direction for Emacs as a whole is stable, albeit slow at times:
-  - It feels okay to stay, say on Emacs 29.X, for a long time without *having* to switch to the bleeding-edge version.
-- I can have the exact experience I want, in the way that I want it:
-  - Personal customization on Emacs is endless. On top of that, using ELisp is fun and will /hopefully/ get me to use more Lispy languages in the future.
+I mean... why not? Emacs is far older than I am and seems like it'll stick around for a while longer.
 
-** Why use a literate configuration?
+1. I can use ELisp and Lispy languages are cool
+2. Emacs is stable, albeit slow
+3. Each package has its own niche and does it well
 
-Documentation is a gift to your future self when you come back a month or years from now and wonder what the hell you wrote: this configuration is no different. The benefits of writing documentation heavily outweighs, in my opinion, the cost of having to re-read and search for why a certain configuration was set that way by your past self.
+At the end of the day, I want mastery over the tools that I use, and I want to have fun doing so.
 
-To modify this setup, edit this Org file and evaluate the code block changed with =C-c C-c= or tangle the whole file with =C-c C-v C-t=.
+*** Why a literate configuration?
+
+I'm going to forgot why I put things into my configuration. This is a gift for my future self.
+
+Use =C-c C-c= to evaluate code blocks and =C-c C-v C-t= to tangle the file.
 
 #+begin_src emacs-lisp :tangle no :results none
 (org-babel-tangle)
 #+end_src
-* Emacs build
-:PROPERTIES:
-:CUSTOM_ID: emacs_build
-:END:
 
-I use [[https://bitbucket.org/mituharu/emacs-mac/overview][emacs-mac]] on OSX. Specifically, I use the following to build emacs-mac:
+*** Why emacs-mac over emacs-plus?
 
-#+begin_src bash :tangle no :results none
-  brew install emacs-mac --with-native-comp --with-starter --with-mac-metal --with-imagemagick --with-librsvg --with-emacs-big-sur-icon
-#+end_src
-
-** Why emacs-mac over emacs-plus?
-- It feels more native to OSX
-- Frames are properly behaved with window managers
-- Native PDF and stipple display
-- Less of a headache using native compilation (although this may have changed since I last tried emacs-plus)
-- I have no need for emacsclient
+1. It generally feels more like a native OSX citizen (frames, pixels, scrolling, display)
+2. The latest Emacs branch doesn't appeal to me, I'm fine using 29.X
+3. I don't use emacsclient
 
 * =early-init.el=
 :PROPERTIES:
@@ -46,30 +37,21 @@ I use [[https://bitbucket.org/mituharu/emacs-mac/overview][emacs-mac]] on OSX. S
 
 The [[file:early-init.el][file]] that contains customizations that need to take effect during Emacs startup earlier than the normal =init.el= file. Customizations related to GUI features will not work reliably in =early-init.el=, but if needed use hooks to do so.
 
-Here, we disable =site-start= and =default= files for faster startup.
-
-#+begin_src emacs-lisp :tangle "early-init.el"
-  (setq site-run-file nil)
-  (setq inhibit-default-init t)
-#+end_src
-
-Maximizing the garbage collection threshold during startup makes Emacs boot faster.
-
-#+begin_src emacs-lisp :tangle "early-init.el"
-  (setq gc-cons-threshold most-positive-fixnum
-        gc-cons-percentage 0.5)
-#+end_src
-
-See Elpaca setup.
+See the Elpaca setup for more details.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
   (setq package-enable-at-startup nil)
 #+end_src
 
-After the init process is done, we reset the garbage collecter limit.
+Disable =site-start= and =default= files, and maximize the garbage collection threshold during startup to boot faster. Then, reset the garbage collection limit.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
+  (setq site-run-file nil
+		inhibit-default-init t
+		gc-cons-threshold most-positive-fixnum
+		gc-cons-percentage 0.5)
+
   (add-hook 'after-init-hook
-            #'(lambda () (setq gc-cons-threshold (* 8 1024 1024)
-                               gc-cons-percentage 0.1)))
+			#'(lambda () (setq gc-cons-threshold (* 8 1024 1024)
+							   gc-cons-percentage 0.1)))
 #+end_src
