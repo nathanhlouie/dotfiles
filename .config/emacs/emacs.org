@@ -8,7 +8,7 @@
 
 I mean... why not? Emacs is far older than I am and seems like it'll stick around for a while longer.
 
-1. I can use ELisp and Lispy languages are cool
+1. I can use ELisp; Lispy languages are cool
 2. Emacs is stable, albeit slow
 3. Each package has its own niche and does it well
 
@@ -27,7 +27,7 @@ Use =C-c C-c= to evaluate code blocks and =C-c C-v C-t= to tangle the file.
 *** Why emacs-mac over emacs-plus?
 
 1. It generally feels more like a native OSX citizen (frames, pixels, scrolling, display)
-2. The latest Emacs branch doesn't appeal to me, I'm fine using 29.X
+2. The latest Emacs branch doesn't appeal to me; I'm fine using 29.X
 3. I don't use emacsclient
 
 * =early-init.el=
@@ -55,3 +55,170 @@ Disable =site-start= and =default= files, and maximize the garbage collection th
 			#'(lambda () (setq gc-cons-threshold (* 8 1024 1024)
 							   gc-cons-percentage 0.1)))
 #+end_src
+
+* =init.el=
+:PROPERTIES:
+:CUSTOM_ID: init
+:END:
+
+** [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]]
+
+#+begin_src emacs-lisp
+  ;;; init.el -*- lexical-binding: t -*-
+#+end_src
+
+** Elpaca
+
+Uses =use-package= instead of the =elpaca= macro. Make sure to use the =:wait= recipe keyword for blocking packages that are used in the init file itself. See [[https://github.com/progfolio/elpaca][Elpaca]] for more details.
+
+#+begin_src emacs-lisp
+  (defvar elpaca-installer-version 0.8)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+								:ref nil :depth 1
+								:files (:defaults "elpaca-test.el" (:exclude "extensions"))
+								:build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+		 (build (expand-file-name "elpaca/" elpaca-builds-directory))
+		 (order (cdr elpaca-order))
+		 (default-directory repo))
+	(add-to-list 'load-path (if (file-exists-p build) build repo))
+	(unless (file-exists-p repo)
+	  (make-directory repo t)
+	  (when (< emacs-major-version 28) (require 'subr-x))
+	  (condition-case-unless-debug err
+		  (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+					((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+													,@(when-let* ((depth (plist-get order :depth)))
+														(list (format "--depth=%d" depth) "--no-single-branch"))
+													,(plist-get order :repo) ,repo))))
+					((zerop (call-process "git" nil buffer t "checkout"
+										  (or (plist-get order :ref) "--"))))
+					(emacs (concat invocation-directory invocation-name))
+					((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+										  "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+					((require 'elpaca))
+					((elpaca-generate-autoloads "elpaca" repo)))
+			  (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+			(error "%s" (with-current-buffer buffer (buffer-string))))
+		((error) (warn "%s" err) (delete-directory repo 'recursive))))
+	(unless (require 'elpaca-autoloads nil t)
+	  (require 'elpaca)
+	  (elpaca-generate-autoloads "elpaca" repo)
+	  (load "./elpaca-autoloads")))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+
+  (elpaca elpaca-use-package
+	(elpaca-use-package-mode))
+#+end_src
+
+** Better defaults
+
+*** Frame configuration
+
+By default Emacs will resize the frame if you adjust the font size.
+
+#+begin_src emacs-lisp
+  (setq frame-inhibit-implied-resize t
+		frame-resize-pixelwise t
+		frame-title-format '("%b")
+		ring-bell-function 'ignore
+		split-width-threshold 300
+		visible-bell nil)
+#+end_src
+
+Use precise pixel scrolling.
+
+#+begin_src emacs-lisp
+  (setq pixel-scroll-precision-mode t
+		pixel-scroll-precision-use-momentum nil)
+#+end_src
+
+*** Startup
+
+Disable everything Emacs does on startup.
+
+#+begin_src emacs-lisp
+  (setq inhibit-splash-screen t
+		inhibit-startup-buffer-menu t
+		inhibit-startup-echo-area-message user-login-name
+		inhibit-startup-message t
+		inhibit-startup-screen t
+		initial-buffer-choice t
+		initial-scratch-message "")
+#+end_src
+
+*** Hide UI components
+
+#+begin_src emacs-lisp
+  (setq pop-up-windows nil
+		use-dialog-box nil
+		use-file-dialog nil
+		use-short-answers t
+		show-help-function nil
+		warning-minimum-level :emergency)
+
+  (tool-bar-mode -1)
+  (tooltip-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+
+Since the menu-bar is desktop-wide on OSX, see the [[https://bitbucket.org/mituharu/emacs-mac/src/892fa7b2501a403b4f0aea8152df9d60d63f391a/doc/emacs/macport.texi?at=master#macport.texi-529][documentation]] for the following:
+
+#+begin_src emacs-lisp
+  (menu-bar-mode 1)
+#+end_src
+
+*** Decluttering files
+
+I have no need for backup and lock files, but auto-save files are still handy to keep, just not littered around everywhere.
+
+#+begin_src emacs-lisp
+  (setq create-lockfiles nil
+		make-backup-files nil)
+
+  (setq auto-save-default t
+		auto-save-interval 200
+		auto-save-timeout 20)
+
+  (setq delete-by-moving-to-trash t)
+#+end_src
+
+*** Encoding / Language
+
+#+begin_src emacs-lisp
+  (prefer-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-language-environment "English")
+  (set-terminal-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (setq ispell-dictionary "en_US")
+#+end_src
+
+*** Editing
+
+Load concurrent changes to open files so they aren't deleted.
+
+#+begin_src emacs-lisp
+  (global-auto-revert-mode t)
+  (global-auto-revert-non-file-buffers t)
+#+end_src
+
+Cleanup whitespaces.
+
+#+begin_src emacs-lisp
+  (setq sentence-end-double-space nil)
+
+  (add-hook 'before-save-hook #'delete-trailing-whitespace)
+#+end_src
+
+Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and I want this change globally.
+
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+end_src
+
+
