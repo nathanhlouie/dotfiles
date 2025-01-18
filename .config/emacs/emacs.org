@@ -83,6 +83,10 @@ Make native compilation silent and prune its cache.
 
 ** Elpaca
 
+#+begin_quote
+An ELisp package manager.
+#+end_quote
+
 Uses =use-package= instead of the =elpaca= macro. Make sure to use the =:wait= recipe keyword for blocking packages that are used in the init file itself. See [[https://github.com/progfolio/elpaca][Elpaca]] for more details.
 
 #+begin_src emacs-lisp
@@ -172,7 +176,6 @@ Disable everything Emacs does on startup.
 #+begin_src emacs-lisp
   (setq cursor-in-non-selected-windows nil
 	indicate-empty-lines nil
-	pop-up-windows nil
 	use-dialog-box nil
 	use-file-dialog nil
 	use-short-answers t
@@ -285,6 +288,10 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 
 ** Vertico
 
+#+begin_quote
+VERTical Interactive COmpletion; better completion commands and tables.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package vertico
     :demand t
@@ -299,6 +306,10 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 
 ** Orderless
 
+#+begin_quote
+An orderless completion style that matches candidates in any order.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package orderless
     :defer 1
@@ -310,6 +321,10 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 
 ** Marginalia
 
+#+begin_quote
+Adds marginalia annotations to completion candidates.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package marginalia
     :defer 2
@@ -318,6 +333,10 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 #+end_src
 
 ** Consult
+
+#+begin_quote
+Uses completing-read for search and navigation.
+#+end_quote
 
 #+begin_src emacs-lisp
   (use-package consult
@@ -330,6 +349,10 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 
 ** Embark
 
+#+begin_quote
+Rich command actions based on a target.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package embark
     :demand t)
@@ -341,6 +364,10 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 
 ** Cape
 
+#+begin_quote
+Completion At Point Extensions; completion backends.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package cape
     :commands (cape-file)
@@ -350,6 +377,10 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 #+end_src
 
 ** Avy
+
+#+begin_quote
+Jump anywhere using a few characters.
+#+end_quote
 
 See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
 
@@ -365,6 +396,10 @@ See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
 
 ** Anzu
 
+#+begin_quote
+Minor mode which displays current match and total matches information in the mode-line during searches.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package anzu
     :defer 10
@@ -372,6 +407,10 @@ See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
 #+end_src
 
 ** Corfu
+
+#+begin_quote
+COmpletion in Region FUnction; enhanced in-buffer completion.
+#+end_quote
 
 #+begin_src emacs-lisp
   (use-package corfu
@@ -386,6 +425,10 @@ See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
 
 ** Projectile
 
+#+begin_quote
+A project interaction library.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package projectile
     :demand t
@@ -397,7 +440,7 @@ See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
 ** TODO Eglot
 
 ** TODO Flymake
-
+** TODO Apheleia
 ** TODO Treesitter
 
 ** TODO Dape

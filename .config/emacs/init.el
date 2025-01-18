@@ -67,7 +67,6 @@
 
 (setq cursor-in-non-selected-windows nil
       indicate-empty-lines nil
-      pop-up-windows nil
       use-dialog-box nil
       use-file-dialog nil
       use-short-answers t
