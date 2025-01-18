@@ -27,9 +27,9 @@ export PATH=$PATH:$HOME/Library/Python/3.12/bin/
 export GOPATH=$HOME/.go
 export PATH=$PATH:$(go env GOPATH)/bin
 
-export ALTERNATE_EDITOR="emacsclient -c -a="""
-export EDITOR="emacsclient -c -a="""
-export VISUAL="emacsclient -c -a="""
+export ALTERNATE_EDITOR="emacs -c -a="""
+export EDITOR="emacs -c -a="""
+export VISUAL="emacs -c -a="""
 
 brewup () {
 	brew update
