@@ -37,6 +37,12 @@ Use =C-c C-c= to evaluate code blocks and =C-c C-v C-t= to tangle the file.
 
 The [[file:early-init.el][file]] that contains customizations that need to take effect during Emacs startup earlier than the normal =init.el= file. Customizations related to GUI features will not work reliably in =early-init.el=, but if needed use hooks to do so.
 
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]]
+
+#+begin_src emacs-lisp
+  ;;; init.el -*- lexical-binding: t -*-
+#+end_src
+
 See the Elpaca setup for more details.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
@@ -77,46 +83,48 @@ Uses =use-package= instead of the =elpaca= macro. Make sure to use the =:wait= r
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
   (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-								:ref nil :depth 1
-								:files (:defaults "elpaca-test.el" (:exclude "extensions"))
-								:build (:not elpaca--activate-package)))
+                                :ref nil :depth 1
+                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                                :build (:not elpaca--activate-package)))
   (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-		 (build (expand-file-name "elpaca/" elpaca-builds-directory))
-		 (order (cdr elpaca-order))
-		 (default-directory repo))
-	(add-to-list 'load-path (if (file-exists-p build) build repo))
-	(unless (file-exists-p repo)
-	  (make-directory repo t)
-	  (when (< emacs-major-version 28) (require 'subr-x))
-	  (condition-case-unless-debug err
-		  (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-					((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-													,@(when-let* ((depth (plist-get order :depth)))
-														(list (format "--depth=%d" depth) "--no-single-branch"))
-													,(plist-get order :repo) ,repo))))
-					((zerop (call-process "git" nil buffer t "checkout"
-										  (or (plist-get order :ref) "--"))))
-					(emacs (concat invocation-directory invocation-name))
-					((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-										  "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-					((require 'elpaca))
-					((elpaca-generate-autoloads "elpaca" repo)))
-			  (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-			(error "%s" (with-current-buffer buffer (buffer-string))))
-		((error) (warn "%s" err) (delete-directory repo 'recursive))))
-	(unless (require 'elpaca-autoloads nil t)
-	  (require 'elpaca)
-	  (elpaca-generate-autoloads "elpaca" repo)
-	  (load "./elpaca-autoloads")))
+         (build (expand-file-name "elpaca/" elpaca-builds-directory))
+         (order (cdr elpaca-order))
+         (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (< emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                    ,@(when-let* ((depth (plist-get order :depth)))
+                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                    ,(plist-get order :repo) ,repo))))
+                    ((zerop (call-process "git" nil buffer t "checkout"
+                                          (or (plist-get order :ref) "--"))))
+                    (emacs (concat invocation-directory invocation-name))
+                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                    ((require 'elpaca))
+                    ((elpaca-generate-autoloads "elpaca" repo)))
+              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+            (error "%s" (with-current-buffer buffer (buffer-string))))
+        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (load "./elpaca-autoloads")))
   (add-hook 'after-init-hook #'elpaca-process-queues)
   (elpaca `(,@elpaca-order))
 
   (elpaca elpaca-use-package
-	(elpaca-use-package-mode))
+    (elpaca-use-package-mode)
+    (setq use-package-always-ensure t))
+
+  (elpaca-wait)
 #+end_src
 
 ** Better defaults
-
 *** Frame configuration
 
 By default Emacs will resize the frame if you adjust the font size.
@@ -236,7 +244,6 @@ Load concurrent changes to open files so they aren't deleted.
 
 #+begin_src emacs-lisp
   (global-auto-revert-mode t)
-  (global-auto-revert-non-file-buffers t)
 #+end_src
 
 Cleanup whitespaces.
@@ -270,53 +277,42 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 ** Vertico
 
 #+begin_src emacs-lisp
-  (setq enable-recursive-minibuffers t)
-
   (use-package vertico
-    :ensure t
-    :hook
-    (after-init . vertico-mode)
+    :demand t
     :custom
+    (enable-recursive-minibuffers t)
     (vertico-count 10)
     (vertico-resize nil)
-    (advice-add #'vertico--format-candidate :around
-		(lambda (orig cand prefix suffix index _start)
-		  (setq cand (funcall orig cand prefix suffix index _start))
-		  (concat
-		   (if (= vertico--index index)
-		       (propertize "» " 'face '(:foreground "#80adf0" :weight bold))
-		     "  ")
-		   cand))))
+    (vertico-cycle t)
+    :config
+    (vertico-mode))
 #+end_src
 
 ** Orderless
 
 #+begin_src emacs-lisp
   (use-package orderless
-    :ensure t
-    :defer t
-    :after vertico
-    :config
-    (setq completion-styles '(orderless basic)
-	  completion-category-defaults nil
-	  completion-category-overrides '((file (styles partial-completion)))))
+    :defer 1
+    :custom
+    (completion-styles '(orderless basic))
+    (completion-category-defaults nil)
+    (completion-category-overrides '((file (styles partial-completion)))))
 #+end_src
 
 ** Marginalia
 
 #+begin_src emacs-lisp
   (use-package marginalia
-    :ensure t
-    :hook
-    (after-init . marginalia-mode))
+    :defer 2
+    :config
+    (marginalia-mode))
 #+end_src
 
 ** Consult
 
 #+begin_src emacs-lisp
   (use-package consult
-    :ensure t
-    :defer t
+    :demand t
     :config
     (advice-add #'register-preview :override #'consult-register-window)
     (setq xref-show-xrefs-function #'consult-xref
@@ -327,11 +323,19 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 
 #+begin_src emacs-lisp
   (use-package embark
-    :ensure t
-    :defer t)
+    :demand t)
 
   (use-package embark-consult
-    :ensure t
     :hook
     (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+** Theme
+
+Set font configuration first.
+
+#+begin_src emacs-lisp
+  (setq treesit-font-lock-level 4)
+
+  (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 240 :weight 'medium)
 #+end_src
