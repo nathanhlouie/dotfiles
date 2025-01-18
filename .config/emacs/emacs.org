@@ -179,8 +179,7 @@ Disable everything Emacs does on startup.
 	use-dialog-box nil
 	use-file-dialog nil
 	use-short-answers t
-	show-help-function nil
-	warning-minimum-level :emergency)
+	show-help-function nil)
 
   (tool-bar-mode -1)
   (tooltip-mode -1)
@@ -437,25 +436,168 @@ A project interaction library.
     (projectile-mode))
 #+end_src
 
-** TODO Eglot
+** Flymake
 
-** TODO Flymake
-** TODO Apheleia
-** TODO Treesitter
+#+begin_quote
+Syntax checking and linting.
+#+end_quote
 
-** TODO Dape
+#+begin_src emacs-lisp
+  (use-package eldoc
+    :ensure (:wait t)
+    :defer t)
 
-** TODO Eshell / Vterm
+  (use-package jsonrpc
+    :defer t)
+#+end_src
 
-** TODO Tramp
+#+begin_src emacs-lisp
+  (use-package flymake
+    :config
+    (flymake-mode))
+#+end_src
 
-** TODO Magit
+** Eglot
 
-** TODO Diff-hl
+#+begin_quote
+Emacs LSP client.
+#+end_quote
 
-** TODO Smartparens
+#+begin_src emacs-lisp
+  (use-package eglot
+    :demand t
+    :config
+    (add-hook 'eglot-server-initialized-hook #'flymake-mode))
+#+end_src
 
-** TODO Dired
+** Apheleia
+
+#+begin_quote
+Code formatting.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package apheleia
+    :config
+    (apheleia-global-mode))
+#+end_src
+
+** Treesitter
+
+#+begin_quote
+Rich syntax highlighting and comprehension.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package treesit-auto
+    :config
+    (global-treesit-auto-mode))
+#+end_src
+
+** Dape
+
+#+begin_quote
+Debug Adapter Protocol for Emacs
+#+end_quote
+
+Enable repeat mode for more ergonomic use.
+
+#+begin_src emacs-lisp
+  (use-package dape
+    :config
+    (dape-breakpoint-global-mode)
+    (repeat-mode))
+#+end_src
+
+** Vterm
+
+#+begin_quote
+Terminal emulator built on libvterm.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package vterm)
+#+end_src
+
+** Tramp
+
+#+begin_quote
+Remote file editing.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package tramp
+    :custom
+    (tramp-terminal-type "tramp")
+    :config
+    (setq debug-ignored-errors (cons 'remote-file-error debug-ignored-errors)))
+#+end_src
+
+If the above doesn't work, use =sshx= instead of =ssh=. See this [[https://www.emacswiki.org/emacs/TrampMode#h5o-9][link]] for more details.
+
+** Magit
+
+#+begin_quote
+A Git interface.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package seq
+    :ensure (:wait t)
+    :defer t)
+
+  (use-package transient
+    :defer t)
+
+  (use-package magit
+    :defer t
+    :custom
+    (magit-diff-refine-hunk 'all)
+    :config
+    (transient-bind-q-to-quit))
+
+  (use-package forge
+    :after magit)
+#+end_src
+
+** Diff-hl
+
+#+begin_quote
+Git gutter.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package diff-hl
+    :defer t
+    :config
+    (global-diff-hl-mode))
+#+end_src
+
+** Smartparens
+
+#+begin_quote
+Minor mode for smart (auto) parenthesis pairs
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :config
+    (require 'smartparens-config)
+    (smartparens-global-mode)
+#+end_src
+
+** Dired
+#+begin_quote
+Directory browsing commands.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package dired
+    :custom
+    (dired-mouse-drag-files t)
+    (dired-listing-switches "-alh" "Human friendly file sizes.")
+    (dired-kill-when-opening-new-dired-buffer t))
+#+end_src
 
 ** Theme
 
@@ -467,8 +609,47 @@ Set font configuration first.
   (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 240 :weight 'medium)
 #+end_src
 
-** TODO Modeline
+** Modeline
 
-** TODO Org
+#+begin_quote
+Enhanced mode-line.
+#+end_quote
 
-** TODO Olivetti
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :defer 2
+    :custom
+    (doom-modeline-time-analogue-clock nil)
+    (doom-modeline-time-icon nil)
+    (doom-modeline-unicode-fallback nil)
+    (doom-modeline-buffer-encoding 'nondefault)
+    (doom-modeline-icon t)
+    :config
+    (doom-modeline-mode))
+#+end_src
+
+** Org
+
+#+begin_quote
+Notes, documents, literate programming, life in general.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package org
+    :defer t)
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package org-agenda)
+#+end_src
+
+** Olivetti
+
+#+begin_quote
+Enhanced writing environment.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package olivetti
+    :defer t)
+#+end_src

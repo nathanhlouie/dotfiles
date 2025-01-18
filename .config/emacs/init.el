@@ -68,8 +68,7 @@
       use-dialog-box nil
       use-file-dialog nil
       use-short-answers t
-      show-help-function nil
-      warning-minimum-level :emergency)
+      show-help-function nil)
 
 (tool-bar-mode -1)
 (tooltip-mode -1)
@@ -201,6 +200,95 @@
   (add-to-list 'projectile-globally-ignored-directories "*node_modules")
   (projectile-mode))
 
+(use-package eldoc
+  :ensure (:wait t)
+  :defer t)
+
+(use-package jsonrpc
+  :defer t)
+
+(use-package flymake
+  :config
+  (flymake-mode))
+
+(use-package eglot
+  :demand t
+  :config
+  (add-hook 'eglot-server-initialized-hook #'flymake-mode))
+
+(use-package apheleia
+  :config
+  (apheleia-global-mode))
+
+(use-package treesit-auto
+  :config
+  (global-treesit-auto-mode))
+
+(use-package dape
+  :config
+  (dape-breakpoint-global-mode)
+  (repeat-mode))
+
+(use-package vterm)
+
+(use-package tramp
+  :custom
+  (tramp-terminal-type "tramp")
+  :config
+  (setq debug-ignored-errors (cons 'remote-file-error debug-ignored-errors)))
+
+(use-package seq
+  :ensure (:wait t)
+  :defer t)
+
+(use-package transient
+  :defer t)
+
+(use-package magit
+  :defer t
+  :custom
+  (magit-diff-refine-hunk 'all)
+  :config
+  (transient-bind-q-to-quit))
+
+(use-package forge
+  :after magit)
+
+(use-package diff-hl
+  :defer t
+  :config
+  (global-diff-hl-mode))
+
+(use-package smartparens
+  :config
+  (require 'smartparens-config)
+  (smartparens-global-mode)
+
+(use-package dired
+  :custom
+  (dired-mouse-drag-files t)
+  (dired-listing-switches "-alh" "Human friendly file sizes.")
+  (dired-kill-when-opening-new-dired-buffer t))
+
 (setq treesit-font-lock-level 4)
 
 (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 240 :weight 'medium)
+
+(use-package doom-modeline
+  :defer 2
+  :custom
+  (doom-modeline-time-analogue-clock nil)
+  (doom-modeline-time-icon nil)
+  (doom-modeline-unicode-fallback nil)
+  (doom-modeline-buffer-encoding 'nondefault)
+  (doom-modeline-icon t)
+  :config
+  (doom-modeline-mode))
+
+(use-package org
+  :defer t)
+
+(use-package org-agenda)
+
+(use-package olivetti
+  :defer t)
