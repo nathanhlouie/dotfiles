@@ -1,28 +1,3 @@
-let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
-if empty(glob(data_dir . '/autoload/plug.vim'))
-  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
-call plug#begin()
-
-Plug 'jiangmiao/auto-pairs'
-Plug 'tomtom/tcomment_vim'
-Plug 'romainl/vim-cool'
-Plug 'tpope/vim-endwise'
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
-Plug 'junegunn/vim-peekaboo'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-rsi'
-Plug 'tpope/vim-sleuth'
-Plug 'justinmk/vim-sneak'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-vinegar'
-
-call plug#end()
-
 set nocompatible
 syntax on
 

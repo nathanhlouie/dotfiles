@@ -40,7 +40,7 @@ The [[file:early-init.el][file]] that contains customizations that need to take 
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]]
 
 #+begin_src emacs-lisp
-  ;;; init.el -*- lexical-binding: t -*-
+  ;;; early-init.el -*- lexical-binding: t -*-
 #+end_src
 
 See the Elpaca setup for more details.
@@ -53,13 +53,21 @@ Disable =site-start= and =default= files, and maximize the garbage collection th
 
 #+begin_src emacs-lisp :tangle "early-init.el"
   (setq site-run-file nil
-		inhibit-default-init t
-		gc-cons-threshold most-positive-fixnum
-		gc-cons-percentage 0.5)
+        inhibit-default-init t
+        gc-cons-threshold most-positive-fixnum
+        gc-cons-percentage 0.5)
 
   (add-hook 'after-init-hook
-			#'(lambda () (setq gc-cons-threshold (* 8 1024 1024)
-							   gc-cons-percentage 0.1)))
+            #'(lambda () (setq gc-cons-threshold (* 8 1024 1024)
+                               gc-cons-percentage 0.1)))
+#+end_src
+
+Make native compilation silent and prune its cache.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (when (native-comp-available-p)
+    (setq native-comp-async-report-warnings-errors 'silent)
+    (setq native-compile-prune-cache t))
 #+end_src
 
 * =init.el=
@@ -258,6 +266,7 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
 
 #+begin_src emacs-lisp
   (setq-default indent-tabs-mode nil)
+  (setq tab-always-indent 'complete)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -330,6 +339,81 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
     (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
+** Cape
+
+#+begin_src emacs-lisp
+  (use-package cape
+    :commands (cape-file)
+    :config
+    (global-set-key (kbd "C-x C-f") 'cape-file)
+    (global-set-key (kbd "C-x C-l") 'cape-line))
+#+end_src
+
+** Avy
+
+See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
+
+#+begin_src emacs-lisp
+  (use-package avy
+    :demand t
+    :config
+    (avy-setup-default)
+    (global-set-key (kbd "C-;") 'avy-goto-char)
+    (global-set-key (kbd "M-g f") 'avy-goto-line)
+    (global-set-key (kbd "M-g w") 'avy-goto-word-1))
+#+end_src
+
+** Anzu
+
+#+begin_src emacs-lisp
+  (use-package anzu
+    :defer 10
+    :config (global-anzu-mode))
+#+end_src
+
+** Corfu
+
+#+begin_src emacs-lisp
+  (use-package corfu
+    :ensure t
+    :defer 5
+    :custom
+    (corfu-cycle t)
+    (corfu-preselect 'prompt)
+    :config
+    (global-corfu-mode))
+#+end_src
+
+** Projectile
+
+#+begin_src emacs-lisp
+  (use-package projectile
+    :demand t
+    :config
+    (add-to-list 'projectile-globally-ignored-directories "*node_modules")
+    (projectile-mode))
+#+end_src
+
+** TODO Eglot
+
+** TODO Flymake
+
+** TODO Treesitter
+
+** TODO Dape
+
+** TODO Eshell / Vterm
+
+** TODO Tramp
+
+** TODO Magit
+
+** TODO Diff-hl
+
+** TODO Smartparens
+
+** TODO Dired
+
 ** Theme
 
 Set font configuration first.
@@ -339,3 +423,9 @@ Set font configuration first.
 
   (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 240 :weight 'medium)
 #+end_src
+
+** TODO Modeline
+
+** TODO Org
+
+** TODO Olivetti

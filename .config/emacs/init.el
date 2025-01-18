@@ -1,4 +1,4 @@
-;;; init.el -*- lexical-binding: t -*-
+;;; early-init.el -*- lexical-binding: t -*-
 
 ;;; init.el -*- lexical-binding: t -*-
 
@@ -125,6 +125,7 @@
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 
 (setq-default indent-tabs-mode nil)
+(setq tab-always-indent 'complete)
 
 (global-hl-line-mode 1)
 
@@ -169,6 +170,39 @@
 (use-package embark-consult
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
+
+(use-package cape
+  :commands (cape-file)
+  :config
+  (global-set-key (kbd "C-x C-f") 'cape-file)
+  (global-set-key (kbd "C-x C-l") 'cape-line))
+
+(use-package avy
+  :demand t
+  :config
+  (avy-setup-default)
+  (global-set-key (kbd "C-;") 'avy-goto-char)
+  (global-set-key (kbd "M-g f") 'avy-goto-line)
+  (global-set-key (kbd "M-g w") 'avy-goto-word-1))
+
+(use-package anzu
+  :defer 10
+  :config (global-anzu-mode))
+
+(use-package corfu
+  :ensure t
+  :defer 5
+  :custom
+  (corfu-cycle t)
+  (corfu-preselect 'prompt)
+  :config
+  (global-corfu-mode))
+
+(use-package projectile
+  :demand t
+  :config
+  (add-to-list 'projectile-globally-ignored-directories "*node_modules")
+  (projectile-mode))
 
 (setq treesit-font-lock-level 4)
 
