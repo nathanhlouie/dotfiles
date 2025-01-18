@@ -39,7 +39,7 @@ The [[file:early-init.el][file]] that contains customizations that need to take 
 
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]]
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "early-init.el"
   ;;; early-init.el -*- lexical-binding: t -*-
 #+end_src
 

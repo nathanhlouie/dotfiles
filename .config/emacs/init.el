@@ -1,5 +1,3 @@
-;;; early-init.el -*- lexical-binding: t -*-
-
 ;;; init.el -*- lexical-binding: t -*-
 
 (defvar elpaca-installer-version 0.8)
