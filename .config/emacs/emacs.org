@@ -200,11 +200,17 @@ I have no need for backup and lock files, but auto-save files are still handy to
 
 #+begin_src emacs-lisp
   (setq create-lockfiles nil
-		make-backup-files nil)
+        make-backup-files nil)
 
   (setq auto-save-default t
-		auto-save-interval 200
-		auto-save-timeout 20)
+        auto-save-interval 200
+        auto-save-timeout 20)
+
+  (let ((auto-save-dir (concat user-emacs-directory "auto-save/")))
+    (unless (file-exists-p auto-save-dir)
+      (make-directory auto-save-dir))
+    (setq auto-save-file-name-transforms `((".*" ,auto-save-dir t)))
+    (setq tramp-auto-save-directory auto-save-dir))
 
   (setq delete-by-moving-to-trash t)
 #+end_src
@@ -283,6 +289,34 @@ Use =setq-default= here since =indent-tabs-mode= is a buffer-local variable, and
   (save-place-mode 1)
   (winner-mode 1)
   (xterm-mouse-mode 1)
+#+end_src
+
+** Dependencies
+
+Seems like Elpaca has issues with how =eldoc= and =seq= are installed. This should get rid of =Warning (emacs): eldoc loaded before Elpaca bactivation=.
+
+#+begin_src emacs-lisp
+  (unload-feature 'eldoc t)
+  (setq custom-delayed-init-variables '())
+  (setq global-eldoc-mode nil)
+
+  (elpaca eldoc
+    (require 'eldoc)
+    (global-eldoc-mode))
+
+  (defun +elpaca-unload-seq (e)
+    (and (featurep 'seq) (unload-feature 'seq t))
+    (elpaca--continue-build e))
+
+  (defun +elpaca-seq-build-steps ()
+    (append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
+                         elpaca--pre-built-steps elpaca-build-steps))
+            (list '+elpaca-unload-seq 'elpaca--activate-package)))
+  (elpaca `(seq :build ,(+elpaca-seq-build-steps)))
+
+  (use-package jsonrpc
+    :ensure (:wait t)
+    :defer t)
 #+end_src
 
 ** Vertico
@@ -443,15 +477,6 @@ Syntax checking and linting.
 #+end_quote
 
 #+begin_src emacs-lisp
-  (use-package eldoc
-    :ensure (:wait t)
-    :defer t)
-
-  (use-package jsonrpc
-    :defer t)
-#+end_src
-
-#+begin_src emacs-lisp
   (use-package flymake
     :config
     (flymake-mode))
@@ -465,7 +490,7 @@ Emacs LSP client.
 
 #+begin_src emacs-lisp
   (use-package eglot
-    :demand t
+    :defer t
     :config
     (add-hook 'eglot-server-initialized-hook #'flymake-mode))
 #+end_src
@@ -526,11 +551,7 @@ Remote file editing.
 #+end_quote
 
 #+begin_src emacs-lisp
-  (use-package tramp
-    :custom
-    (tramp-terminal-type "tramp")
-    :config
-    (setq debug-ignored-errors (cons 'remote-file-error debug-ignored-errors)))
+(setq tramp-terminal-type "tramp")
 #+end_src
 
 If the above doesn't work, use =sshx= instead of =ssh=. See this [[https://www.emacswiki.org/emacs/TrampMode#h5o-9][link]] for more details.
@@ -542,10 +563,6 @@ A Git interface.
 #+end_quote
 
 #+begin_src emacs-lisp
-  (use-package seq
-    :ensure (:wait t)
-    :defer t)
-
   (use-package transient
     :defer t)
 
@@ -583,20 +600,19 @@ Minor mode for smart (auto) parenthesis pairs
   (use-package smartparens
     :config
     (require 'smartparens-config)
-    (smartparens-global-mode)
+    (smartparens-global-mode))
 #+end_src
 
 ** Dired
+
 #+begin_quote
 Directory browsing commands.
 #+end_quote
 
 #+begin_src emacs-lisp
-  (use-package dired
-    :custom
-    (dired-mouse-drag-files t)
-    (dired-listing-switches "-alh" "Human friendly file sizes.")
-    (dired-kill-when-opening-new-dired-buffer t))
+  (setq dired-mouse-drag-files t)
+  (setq dired-listing-switches "-alh")
+  (setq dired-kill-when-opening-new-dired-buffer t)
 #+end_src
 
 ** Theme
@@ -637,10 +653,6 @@ Notes, documents, literate programming, life in general.
 #+begin_src emacs-lisp
   (use-package org
     :defer t)
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package org-agenda)
 #+end_src
 
 ** Olivetti

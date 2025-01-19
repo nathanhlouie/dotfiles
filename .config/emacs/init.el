@@ -46,22 +46,22 @@
 (elpaca-wait)
 
 (setq frame-inhibit-implied-resize t
-	      frame-resize-pixelwise t
-	      frame-title-format '("%b")
-	      ring-bell-function 'ignore
-	      split-width-threshold 300
-	      visible-bell nil)
+      	frame-resize-pixelwise t
+      	frame-title-format '("%b")
+      	ring-bell-function 'ignore
+      	split-width-threshold 300
+      	visible-bell nil)
 
 (setq pixel-scroll-precision-mode t
-	      pixel-scroll-precision-use-momentum nil)
+      	pixel-scroll-precision-use-momentum nil)
 
 (setq inhibit-splash-screen t
-	      inhibit-startup-buffer-menu t
-	      inhibit-startup-echo-area-message user-login-name
-	      inhibit-startup-message t
-	      inhibit-startup-screen t
-	      initial-buffer-choice t
-	      initial-scratch-message "")
+      	inhibit-startup-buffer-menu t
+      	inhibit-startup-echo-area-message user-login-name
+      	inhibit-startup-message t
+      	inhibit-startup-screen t
+      	initial-buffer-choice t
+      	initial-scratch-message "")
 
 (setq cursor-in-non-selected-windows nil
       indicate-empty-lines nil
@@ -79,11 +79,17 @@
   (menu-bar-mode -1))
 
 (setq create-lockfiles nil
-	      make-backup-files nil)
+      make-backup-files nil)
 
 (setq auto-save-default t
-	      auto-save-interval 200
-	      auto-save-timeout 20)
+      auto-save-interval 200
+      auto-save-timeout 20)
+
+(let ((auto-save-dir (concat user-emacs-directory "auto-save/")))
+  (unless (file-exists-p auto-save-dir)
+    (make-directory auto-save-dir))
+  (setq auto-save-file-name-transforms `((".*" ,auto-save-dir t)))
+  (setq tramp-auto-save-directory auto-save-dir))
 
 (setq delete-by-moving-to-trash t)
 
@@ -96,11 +102,11 @@
 
 (when (eq system-type 'darwin)
   (setq ns-use-native-fullscreen t
-	mac-option-key-is-meta nil
-	mac-command-key-is-meta t
-	mac-command-modifier 'meta
-	mac-option-modifier nil
-	mac-use-title-bar nil))
+        mac-option-key-is-meta nil
+        mac-command-key-is-meta t
+        mac-command-modifier 'meta
+        mac-option-modifier nil
+        mac-use-title-bar nil))
 
 (defun copy-from-osx ()
   (shell-command-to-string "pbpaste"))
@@ -110,7 +116,7 @@
       (process-send-string proc text)
       (process-send-eof proc))))
 (when (and (not (display-graphic-p))
-	   (eq system-type 'darwin))
+           (eq system-type 'darwin))
   (setq interprogram-cut-function 'paste-to-osx)
   (setq interprogram-paste-function 'copy-from-osx))
 
@@ -130,6 +136,28 @@
 (save-place-mode 1)
 (winner-mode 1)
 (xterm-mouse-mode 1)
+
+(unload-feature 'eldoc t)
+(setq custom-delayed-init-variables '())
+(setq global-eldoc-mode nil)
+
+(elpaca eldoc
+  (require 'eldoc)
+  (global-eldoc-mode))
+
+(defun +elpaca-unload-seq (e)
+  (and (featurep 'seq) (unload-feature 'seq t))
+  (elpaca--continue-build e))
+
+(defun +elpaca-seq-build-steps ()
+  (append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
+                       elpaca--pre-built-steps elpaca-build-steps))
+          (list '+elpaca-unload-seq 'elpaca--activate-package)))
+(elpaca `(seq :build ,(+elpaca-seq-build-steps)))
+
+(use-package jsonrpc
+  :ensure (:wait t)
+  :defer t)
 
 (use-package vertico
   :demand t
@@ -158,7 +186,7 @@
   :config
   (advice-add #'register-preview :override #'consult-register-window)
   (setq xref-show-xrefs-function #'consult-xref
-	xref-show-definitions-function #'consult-xref))
+        xref-show-definitions-function #'consult-xref))
 
 (use-package embark
   :demand t)
@@ -200,19 +228,12 @@
   (add-to-list 'projectile-globally-ignored-directories "*node_modules")
   (projectile-mode))
 
-(use-package eldoc
-  :ensure (:wait t)
-  :defer t)
-
-(use-package jsonrpc
-  :defer t)
-
 (use-package flymake
   :config
   (flymake-mode))
 
 (use-package eglot
-  :demand t
+  :defer t
   :config
   (add-hook 'eglot-server-initialized-hook #'flymake-mode))
 
@@ -231,15 +252,7 @@
 
 (use-package vterm)
 
-(use-package tramp
-  :custom
-  (tramp-terminal-type "tramp")
-  :config
-  (setq debug-ignored-errors (cons 'remote-file-error debug-ignored-errors)))
-
-(use-package seq
-  :ensure (:wait t)
-  :defer t)
+(setq tramp-terminal-type "tramp")
 
 (use-package transient
   :defer t)
@@ -262,13 +275,11 @@
 (use-package smartparens
   :config
   (require 'smartparens-config)
-  (smartparens-global-mode)
+  (smartparens-global-mode))
 
-(use-package dired
-  :custom
-  (dired-mouse-drag-files t)
-  (dired-listing-switches "-alh" "Human friendly file sizes.")
-  (dired-kill-when-opening-new-dired-buffer t))
+(setq dired-mouse-drag-files t)
+(setq dired-listing-switches "-alh")
+(setq dired-kill-when-opening-new-dired-buffer t)
 
 (setq treesit-font-lock-level 4)
 
@@ -287,8 +298,6 @@
 
 (use-package org
   :defer t)
-
-(use-package org-agenda)
 
 (use-package olivetti
   :defer t)
