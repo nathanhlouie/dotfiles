@@ -331,7 +331,7 @@ VERTical Interactive COmpletion; better completion commands and tables.
     :custom
     (enable-recursive-minibuffers t)
     (vertico-count 10)
-    (vertico-resize nil)
+    (vertico-resize t)
     (vertico-cycle t)
     :config
     (vertico-mode))
