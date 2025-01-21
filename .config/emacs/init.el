@@ -46,22 +46,22 @@
 (elpaca-wait)
 
 (setq frame-inhibit-implied-resize t
-      	frame-resize-pixelwise t
-      	frame-title-format '("%b")
-      	ring-bell-function 'ignore
-      	split-width-threshold 300
-      	visible-bell nil)
+	      frame-resize-pixelwise t
+	      frame-title-format '("%b")
+	      ring-bell-function 'ignore
+	      split-width-threshold 300
+	      visible-bell nil)
 
 (setq pixel-scroll-precision-mode t
-      	pixel-scroll-precision-use-momentum nil)
+	      pixel-scroll-precision-use-momentum nil)
 
 (setq inhibit-splash-screen t
-      	inhibit-startup-buffer-menu t
-      	inhibit-startup-echo-area-message user-login-name
-      	inhibit-startup-message t
-      	inhibit-startup-screen t
-      	initial-buffer-choice t
-      	initial-scratch-message "")
+	      inhibit-startup-buffer-menu t
+	      inhibit-startup-echo-area-message user-login-name
+	      inhibit-startup-message t
+	      inhibit-startup-screen t
+	      initial-buffer-choice t
+	      initial-scratch-message "")
 
 (setq cursor-in-non-selected-windows nil
       indicate-empty-lines nil
@@ -102,11 +102,11 @@
 
 (when (eq system-type 'darwin)
   (setq ns-use-native-fullscreen t
-        mac-option-key-is-meta nil
-        mac-command-key-is-meta t
-        mac-command-modifier 'meta
-        mac-option-modifier nil
-        mac-use-title-bar nil))
+	mac-option-key-is-meta nil
+	mac-command-key-is-meta t
+	mac-command-modifier 'meta
+	mac-option-modifier nil
+	mac-use-title-bar nil))
 
 (defun copy-from-osx ()
   (shell-command-to-string "pbpaste"))
@@ -116,7 +116,7 @@
       (process-send-string proc text)
       (process-send-eof proc))))
 (when (and (not (display-graphic-p))
-           (eq system-type 'darwin))
+	   (eq system-type 'darwin))
   (setq interprogram-cut-function 'paste-to-osx)
   (setq interprogram-paste-function 'copy-from-osx))
 
@@ -175,10 +175,10 @@
   (vertico-cycle t)
   (vertico-multiform-commands '((consult-line buffer)
                                 (consult-imenu reverse buffer)))
+  (vertico-multiform-categories '(embark-keybinding grid))
   :config
   (vertico-mode)
   (vertico-multiform-mode)
-
   (setq minibuffer-prompt-properties
         '(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
@@ -206,16 +206,76 @@
 
 (use-package consult
   :demand t
+  :bind (("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ("C-x M-:" . consult-complex-command)
+         ("C-x b" . consult-buffer)
+         ("C-x 4 b" . consult-buffer-other-window)
+         ("C-x 5 b" . consult-buffer-other-frame)
+         ("C-x t b" . consult-buffer-other-tab)
+         ("C-x r b" . consult-bookmark)
+         ("C-x p b" . consult-project-buffer)
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)
+         ("C-M-#" . consult-register)
+         ("M-y" . consult-yank-pop)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)
+         ("M-g g" . consult-goto-line)
+         ("M-g M-g" . consult-goto-line)
+         ("M-g o" . consult-outline)
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ("M-s d" . consult-find)
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)
+         ("M-s e" . consult-isearch-history)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         :map minibuffer-local-map
+         ("M-s" . consult-history)
+         ("M-r" . consult-history))
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :custom
+  (register-preview-delay 0.5)
+  (xref-show-xrefs-function #'consult-xref)
+  (xref-show-definitions-function #'consult-xref)
+  (consult-narrow-key "<")
+  (consult-preview-key 'any)
+  (consult-line-numbers-widen t)
   :config
   (advice-add #'register-preview :override #'consult-register-window)
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref))
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep consult-man
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   :preview-key '(:debounce 0.4 any)))
 
 (use-package embark
   :demand t
   :bind (("C-." . embark-act)
          ("M-." . embark-dwim)
-         ("C-h B" . embark-bindings))
+         ("C-h B" . embark-bindings)
+         :map minibuffer-local-map
+         ("C-c C-c" . embark-collect)
+         ("C-c C-e" . embark-export))
   :config
   (setq prefix-help-command #'embark-prefix-help-command)
   (add-to-list 'display-buffer-alist
@@ -224,8 +284,12 @@
                  (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
+  :defer 1
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
+
+(use-package wgrep
+  :defer 1)
 
 (use-package cape
   :commands (cape-file)
