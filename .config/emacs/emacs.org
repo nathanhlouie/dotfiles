@@ -342,7 +342,8 @@ VERTical Interactive COmpletion; better completion commands and tables.
     (vertico-cycle t)
     (vertico-multiform-commands '((consult-line buffer)
                                   (consult-imenu reverse buffer)))
-    (vertico-multiform-categories '(embark-keybinding grid))
+    (vertico-multiform-categories '((embark-keybinding grid)
+                                    (file flat)))
     :config
     (vertico-mode)
     (vertico-multiform-mode)
