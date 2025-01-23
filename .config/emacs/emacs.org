@@ -30,6 +30,12 @@ Use =C-c C-c= to evaluate code blocks and =C-c C-v C-t= to tangle the file.
 2. The latest Emacs branch doesn't appeal to me; I'm fine using 29.X
 3. I don't use emacsclient
 
+The font face on Emacs is unusually bold due to a quirk in OSX font rendering:
+
+#+begin_src bash
+  defaults write org.gnu.Emacs AppleFontSmoothing -int 0
+#+end_src
+
 * =early-init.el=
 :PROPERTIES:
 :CUSTOM_ID: early-init
