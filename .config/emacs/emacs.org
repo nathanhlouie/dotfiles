@@ -32,7 +32,7 @@ Use =C-c C-c= to evaluate code blocks and =C-c C-v C-t= to tangle the file.
 
 The font face on Emacs is unusually bold due to a quirk in OSX font rendering:
 
-#+begin_src bash
+#+begin_src bash :tangle no
   defaults write org.gnu.Emacs AppleFontSmoothing -int 0
 #+end_src
 
@@ -506,10 +506,13 @@ Completion At Point Extensions; completion backends.
 
 #+begin_src emacs-lisp
   (use-package cape
-    :commands (cape-file)
+    :bind ("C-c p" . cape-prefix-map)
     :config
-    (global-set-key (kbd "C-x C-f") 'cape-file)
-    (global-set-key (kbd "C-x C-l") 'cape-line))
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-line)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block)
+    (add-hook 'completion-at-point-functions #'cape-history))
 #+end_src
 
 ** Avy

@@ -46,22 +46,22 @@
 (elpaca-wait)
 
 (setq frame-inhibit-implied-resize t
-      	frame-resize-pixelwise t
-      	frame-title-format '("%b")
-      	ring-bell-function 'ignore
-      	split-width-threshold 300
-      	visible-bell nil)
+	      frame-resize-pixelwise t
+	      frame-title-format '("%b")
+	      ring-bell-function 'ignore
+	      split-width-threshold 300
+	      visible-bell nil)
 
 (setq pixel-scroll-precision-mode t
-      	pixel-scroll-precision-use-momentum nil)
+	      pixel-scroll-precision-use-momentum nil)
 
 (setq inhibit-splash-screen t
-      	inhibit-startup-buffer-menu t
-      	inhibit-startup-echo-area-message user-login-name
-      	inhibit-startup-message t
-      	inhibit-startup-screen t
-      	initial-buffer-choice t
-      	initial-scratch-message "")
+	      inhibit-startup-buffer-menu t
+	      inhibit-startup-echo-area-message user-login-name
+	      inhibit-startup-message t
+	      inhibit-startup-screen t
+	      initial-buffer-choice t
+	      initial-scratch-message "")
 
 (setq cursor-in-non-selected-windows nil
       indicate-empty-lines nil
@@ -102,11 +102,11 @@
 
 (when (eq system-type 'darwin)
   (setq ns-use-native-fullscreen t
-        mac-option-key-is-meta nil
-        mac-command-key-is-meta t
-        mac-command-modifier 'meta
-        mac-option-modifier nil
-        mac-use-title-bar nil))
+	mac-option-key-is-meta nil
+	mac-command-key-is-meta t
+	mac-command-modifier 'meta
+	mac-option-modifier nil
+	mac-use-title-bar nil))
 
 (defun copy-from-osx ()
   (shell-command-to-string "pbpaste"))
@@ -116,7 +116,7 @@
       (process-send-string proc text)
       (process-send-eof proc))))
 (when (and (not (display-graphic-p))
-           (eq system-type 'darwin))
+	   (eq system-type 'darwin))
   (setq interprogram-cut-function 'paste-to-osx)
   (setq interprogram-paste-function 'copy-from-osx))
 
@@ -293,10 +293,13 @@
   :defer 1)
 
 (use-package cape
-  :commands (cape-file)
+  :bind ("C-c p" . cape-prefix-map)
   :config
-  (global-set-key (kbd "C-x C-f") 'cape-file)
-  (global-set-key (kbd "C-x C-l") 'cape-line))
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-line)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+  (add-hook 'completion-at-point-functions #'cape-history))
 
 (use-package avy
   :demand t
