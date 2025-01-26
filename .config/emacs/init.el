@@ -46,22 +46,22 @@
 (elpaca-wait)
 
 (setq frame-inhibit-implied-resize t
-	      frame-resize-pixelwise t
-	      frame-title-format '("%b")
-	      ring-bell-function 'ignore
-	      split-width-threshold 300
-	      visible-bell nil)
+      	frame-resize-pixelwise t
+      	frame-title-format '("%b")
+      	ring-bell-function 'ignore
+      	split-width-threshold 300
+      	visible-bell nil)
 
 (setq pixel-scroll-precision-mode t
-	      pixel-scroll-precision-use-momentum nil)
+      	pixel-scroll-precision-use-momentum nil)
 
 (setq inhibit-splash-screen t
-	      inhibit-startup-buffer-menu t
-	      inhibit-startup-echo-area-message user-login-name
-	      inhibit-startup-message t
-	      inhibit-startup-screen t
-	      initial-buffer-choice t
-	      initial-scratch-message "")
+      	inhibit-startup-buffer-menu t
+      	inhibit-startup-echo-area-message user-login-name
+      	inhibit-startup-message t
+      	inhibit-startup-screen t
+      	initial-buffer-choice t
+      	initial-scratch-message "")
 
 (setq cursor-in-non-selected-windows nil
       indicate-empty-lines nil
@@ -102,11 +102,11 @@
 
 (when (eq system-type 'darwin)
   (setq ns-use-native-fullscreen t
-	mac-option-key-is-meta nil
-	mac-command-key-is-meta t
-	mac-command-modifier 'meta
-	mac-option-modifier nil
-	mac-use-title-bar nil))
+        mac-option-key-is-meta nil
+        mac-command-key-is-meta t
+        mac-command-modifier 'meta
+        mac-option-modifier nil
+        mac-use-title-bar nil))
 
 (defun copy-from-osx ()
   (shell-command-to-string "pbpaste"))
@@ -116,7 +116,7 @@
       (process-send-string proc text)
       (process-send-eof proc))))
 (when (and (not (display-graphic-p))
-	   (eq system-type 'darwin))
+           (eq system-type 'darwin))
   (setq interprogram-cut-function 'paste-to-osx)
   (setq interprogram-paste-function 'copy-from-osx))
 
@@ -293,34 +293,52 @@
   :defer 1)
 
 (use-package cape
+  :demand t
   :bind ("C-c p" . cape-prefix-map)
   :config
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
   (add-hook 'completion-at-point-functions #'cape-line)
   (add-hook 'completion-at-point-functions #'cape-elisp-block)
-  (add-hook 'completion-at-point-functions #'cape-history))
+  (add-hook 'completion-at-point-functions #'cape-history)
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
 (use-package avy
   :demand t
+  :bind (("C-;" . avy-resume)
+         ("M-g c" . avy-goto-char)
+         ("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1))
   :config
-  (avy-setup-default)
-  (global-set-key (kbd "C-;") 'avy-goto-char)
-  (global-set-key (kbd "M-g f") 'avy-goto-line)
-  (global-set-key (kbd "M-g w") 'avy-goto-word-1))
+  (avy-setup-default))
 
 (use-package anzu
   :defer 10
   :config (global-anzu-mode))
 
 (use-package corfu
-  :ensure t
-  :defer 5
+  :demand t
   :custom
+  (corfu-quit-no-match t)
+  (global-corfu-minibuffer
+   (lambda ()
+     (not (or (bound-and-true-p mct--active)
+              (bound-and-true-p vertico--input)
+              (eq (current-local-map) read-passwd-map)))))
   (corfu-cycle t)
   (corfu-preselect 'prompt)
+  (completion-category-overrides '((eglot (styles orderless))
+                                   (eglot-capf (styles orderless))))
   :config
+  (keymap-unset corfu-map "RET")
   (global-corfu-mode))
+
+(use-package corfu-candidate-overlay
+  :demand t
+  :bind (("<tab>" . completion-at-point)
+         ("C-<tab>" . corfu-candidate-overlay-complete-at-point))
+  :config
+  (corfu-candidate-overlay-mode))
 
 (use-package projectile
   :demand t

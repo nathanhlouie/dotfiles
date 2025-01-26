@@ -506,13 +506,15 @@ Completion At Point Extensions; completion backends.
 
 #+begin_src emacs-lisp
   (use-package cape
+    :demand t
     :bind ("C-c p" . cape-prefix-map)
     :config
     (add-hook 'completion-at-point-functions #'cape-dabbrev)
     (add-hook 'completion-at-point-functions #'cape-file)
     (add-hook 'completion-at-point-functions #'cape-line)
     (add-hook 'completion-at-point-functions #'cape-elisp-block)
-    (add-hook 'completion-at-point-functions #'cape-history))
+    (add-hook 'completion-at-point-functions #'cape-history)
+    (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 #+end_src
 
 ** Avy
@@ -526,11 +528,12 @@ See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
 #+begin_src emacs-lisp
   (use-package avy
     :demand t
+    :bind (("C-;" . avy-resume)
+           ("M-g c" . avy-goto-char)
+           ("M-g f" . avy-goto-line)
+           ("M-g w" . avy-goto-word-1))
     :config
-    (avy-setup-default)
-    (global-set-key (kbd "C-;") 'avy-goto-char)
-    (global-set-key (kbd "M-g f") 'avy-goto-line)
-    (global-set-key (kbd "M-g w") 'avy-goto-word-1))
+    (avy-setup-default))
 #+end_src
 
 ** Anzu
@@ -553,13 +556,28 @@ COmpletion in Region FUnction; enhanced in-buffer completion.
 
 #+begin_src emacs-lisp
   (use-package corfu
-    :ensure t
-    :defer 5
+    :demand t
     :custom
+    (corfu-quit-no-match t)
+    (global-corfu-minibuffer
+     (lambda ()
+       (not (or (bound-and-true-p mct--active)
+                (bound-and-true-p vertico--input)
+                (eq (current-local-map) read-passwd-map)))))
     (corfu-cycle t)
     (corfu-preselect 'prompt)
+    (completion-category-overrides '((eglot (styles orderless))
+                                     (eglot-capf (styles orderless))))
     :config
+    (keymap-unset corfu-map "RET")
     (global-corfu-mode))
+
+  (use-package corfu-candidate-overlay
+    :demand t
+    :bind (("<tab>" . completion-at-point)
+           ("C-<tab>" . corfu-candidate-overlay-complete-at-point))
+    :config
+    (corfu-candidate-overlay-mode))
 #+end_src
 
 ** Projectile
