@@ -797,5 +797,5 @@ Helpful
 #+end_quote
 
 #+begin_src emacs-lisp
-
+    (use-package which-key)
 #+end_src

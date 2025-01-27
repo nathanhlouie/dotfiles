@@ -420,4 +420,4 @@
 (use-package olivetti
   :defer t)
 
-
+(use-package which-key)
