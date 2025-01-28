@@ -789,3 +789,13 @@ Enhanced writing environment.
   (use-package olivetti
     :defer t)
 #+end_src
+
+** Which-key
+
+#+begin_quote
+Helpful
+#+end_quote
+
+#+begin_src emacs-lisp
+
+#+end_src
