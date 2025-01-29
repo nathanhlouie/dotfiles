@@ -574,8 +574,8 @@ COmpletion in Region FUnction; enhanced in-buffer completion.
 
   (use-package corfu-candidate-overlay
     :demand t
-    :bind (("<tab>" . completion-at-point)
-           ("C-<tab>" . corfu-candidate-overlay-complete-at-point))
+    ;;:bind (("<tab>" . completion-at-point)
+    ;;       ("C-<tab>" . corfu-candidate-overlay-complete-at-point))
     :config
     (corfu-candidate-overlay-mode))
 #+end_src
@@ -785,7 +785,7 @@ Notes, documents, literate programming, life in general.
 Enhanced writing environment.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package olivetti
     :defer t)
 #+end_src

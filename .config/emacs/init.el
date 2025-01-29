@@ -335,8 +335,8 @@
 
 (use-package corfu-candidate-overlay
   :demand t
-  :bind (("<tab>" . completion-at-point)
-         ("C-<tab>" . corfu-candidate-overlay-complete-at-point))
+  ;;:bind (("<tab>" . completion-at-point)
+  ;;       ("C-<tab>" . corfu-candidate-overlay-complete-at-point))
   :config
   (corfu-candidate-overlay-mode))
 
@@ -415,9 +415,6 @@
   (doom-modeline-mode))
 
 (use-package org
-  :defer t)
-
-(use-package olivetti
   :defer t)
 
 (use-package which-key)
