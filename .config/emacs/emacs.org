@@ -720,7 +720,7 @@ Git gutter.
 Minor mode for smart (auto) parenthesis pairs
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package smartparens
     :config
     (require 'smartparens-config)
@@ -774,7 +774,7 @@ Enhanced mode-line.
 Notes, documents, literate programming, life in general.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package org
     :defer t)
 #+end_src
