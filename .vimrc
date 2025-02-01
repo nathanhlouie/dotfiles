@@ -29,7 +29,7 @@ set nolangremap
 set noswapfile
 set number
 set pumheight=10
-set relativenumber
+set norelativenumber
 set ruler
 set scrolloff=1
 set sessionoptions-=options

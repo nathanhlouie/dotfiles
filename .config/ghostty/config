@@ -3,8 +3,14 @@ theme = sekai-sky
 cursor-style = block
 cursor-style-blink = false
 
-font-family = RobotoMono Nerd Font
+font-family = GeistMono Nerd Font Mono
+# font-family = RobotoMono Nerd Font
 font-size = 24
+
+font-feature = -calt
+font-feature = -liga
+font-feature = -dlig
+font-feature = ss03
 
 macos-icon = custom-style
 macos-icon-frame = beige
