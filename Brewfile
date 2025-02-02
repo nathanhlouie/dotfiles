@@ -33,6 +33,7 @@ brew "tcl-tk"
 brew "ttfautohint"
 brew "wget"
 brew "railwaycat/emacsmacport/emacs-mac", args: ["HEAD", "with-emacs-big-sur-icon", "with-imagemagick", "with-librsvg", "with-mac-metal", "with-native-comp", "with-starter"]
+cask "font-roboto-mono-nerd-font"
 cask "ghostty"
 cask "libreoffice"
 cask "macs-fan-control"
