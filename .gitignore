@@ -9,5 +9,6 @@
 .config/emacs/places
 .config/emacs/projectile-bookmarks.eld
 .config/emacs/recentf
+.config/emacs/saveplace
 .config/emacs/tramp
 .config/emacs/transient/
