@@ -1,4 +1,4 @@
-;;; early-init.el -*- lexical-binding: t -*-
+;;; early-init.el -*- no-byte-compile: t; lexical-binding: t; -*-
 
 (setq package-enable-at-startup nil)
 

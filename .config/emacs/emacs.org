@@ -46,7 +46,7 @@ The [[file:early-init.el][file]] that contains customizations that need to take 
 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]]
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-  ;;; early-init.el -*- lexical-binding: t -*-
+  ;;; early-init.el -*- no-byte-compile: t; lexical-binding: t; -*-
 #+end_src
 
 See the Elpaca setup for more details.
@@ -84,7 +84,7 @@ Make native compilation silent and prune its cache.
 ** [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]]
 
 #+begin_src emacs-lisp
-  ;;; init.el -*- lexical-binding: t -*-
+  ;;; init.el -*- no-byte-compile: t; lexical-binding: t; -*-
 #+end_src
 
 ** Elpaca
@@ -332,7 +332,7 @@ Seems like Elpaca has issues with how =eldoc= and =seq= are installed. This shou
 VERTical Interactive COmpletion; better completion commands and tables.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package vertico
     :demand t
     :bind (:map vertico-map ("C-q" . #'vertico-quick-insert))
@@ -373,7 +373,7 @@ VERTical Interactive COmpletion; better completion commands and tables.
 An orderless completion style that matches candidates in any order.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package orderless
     :defer 1
     :custom
@@ -388,7 +388,7 @@ An orderless completion style that matches candidates in any order.
 Adds marginalia annotations to completion candidates.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package marginalia
     :defer 2
     :config
@@ -401,7 +401,7 @@ Adds marginalia annotations to completion candidates.
 Uses completing-read for search and navigation.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package consult
     :demand t
     :bind (("C-c M-x" . consult-mode-command)
@@ -473,7 +473,7 @@ Uses completing-read for search and navigation.
 Rich command actions based on a target.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package embark
     :demand t
     :bind (("C-." . embark-act)
@@ -504,7 +504,7 @@ Rich command actions based on a target.
 Completion At Point Extensions; completion backends.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package cape
     :demand t
     :bind ("C-c p" . cape-prefix-map)
@@ -525,7 +525,7 @@ Jump anywhere using a few characters.
 
 See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package avy
     :demand t
     :bind (("C-;" . avy-resume)
@@ -542,7 +542,7 @@ See more uses [[https://karthinks.com/software/avy-can-do-anything/][here]].
 Minor mode which displays current match and total matches information in the mode-line during searches.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package anzu
     :defer 10
     :config (global-anzu-mode))
@@ -554,7 +554,7 @@ Minor mode which displays current match and total matches information in the mod
 COmpletion in Region FUnction; enhanced in-buffer completion.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package corfu
     :demand t
     :custom
@@ -586,7 +586,7 @@ COmpletion in Region FUnction; enhanced in-buffer completion.
 A project interaction library.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package projectile
     :demand t
     :config
@@ -625,7 +625,7 @@ Emacs LSP client.
 Code formatting.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package apheleia
     :config
     (apheleia-global-mode))
@@ -651,7 +651,7 @@ Debug Adapter Protocol for Emacs
 
 Enable repeat mode for more ergonomic use.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package dape
     :config
     (dape-breakpoint-global-mode)
@@ -707,7 +707,7 @@ A Git interface.
 Git gutter.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package diff-hl
     :defer t
     :config
@@ -755,7 +755,7 @@ Set font configuration first.
 Enhanced mode-line.
 #+end_quote
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package doom-modeline
     :defer 2
     :custom
