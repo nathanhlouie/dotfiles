@@ -345,6 +345,8 @@
   ;; Speed up vterm
   (setq vterm-timer-delay 0.01))
 
+
+
 (unload-feature 'eldoc t)
 (setq custom-delayed-init-variables '())
 (setq global-eldoc-mode nil)

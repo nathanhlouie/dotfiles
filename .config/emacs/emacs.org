@@ -722,6 +722,12 @@ Makes sure that clipboard works properly in TTY.
     (setq vterm-timer-delay 0.01))
 #+end_src
 
+** Tramp
+
+#+begin_src emacs-lisp
+
+#+end_src
+
 ** Dependencies
 
 Seems like Elpaca has issues with how =eldoc= and =seq= are installed. This should get rid of =Warning (emacs): eldoc loaded before Elpaca bactivation=.
