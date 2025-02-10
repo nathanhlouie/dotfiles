@@ -345,7 +345,7 @@
   ;; Speed up vterm
   (setq vterm-timer-delay 0.01))
 
-
+(setq tramp-terminal-type "tramp")
 
 (unload-feature 'eldoc t)
 (setq custom-delayed-init-variables '())

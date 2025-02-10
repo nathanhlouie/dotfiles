@@ -728,6 +728,8 @@ Makes sure that clipboard works properly in TTY.
   (setq tramp-terminal-type "tramp")
 #+end_src
 
+If the above doesn’t work, use =sshx= instead of =ssh=. See this [[https://www.emacswiki.org/emacs/TrampMode#h5o-9][link]] for more details.
+
 ** Dependencies
 
 Seems like Elpaca has issues with how =eldoc= and =seq= are installed. This should get rid of =Warning (emacs): eldoc loaded before Elpaca bactivation=.
