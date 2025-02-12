@@ -724,6 +724,10 @@ Makes sure that clipboard works properly in TTY.
 
 ** Tramp
 
+#+begin_quote
+Transparent Remote Access, Multiple Protocols, editing remote files
+#+end_quote
+
 #+begin_src emacs-lisp
   (setq tramp-terminal-type "tramp")
 #+end_src
