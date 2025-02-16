@@ -683,6 +683,10 @@ Makes sure that clipboard works properly in TTY.
 
 ** Compile Angel
 
+#+begin_quote
+Byte and native compiles all =.el= files.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package compile-angel
     :demand t
@@ -693,13 +697,23 @@ Makes sure that clipboard works properly in TTY.
 
 ** Which-Key
 
+#+begin_quote
+Displays keybindings.
+#+end_quote
+
 #+begin_src emacs-lisp
   (use-package which-key
+    :custom
+    (which-key-idle-delay 0.2)
     :config
     (which-key-mode))
 #+end_src
 
 ** Uniquify
+
+#+begin_quote
+Makes buffer names with the same name unique.
+#+end_quote
 
 #+begin_src emacs-lisp
   (use-package uniquify
@@ -709,17 +723,6 @@ Makes sure that clipboard works properly in TTY.
     (uniquify-separator "•")
     (uniquify-after-kill-buffer-p t)
     (uniquify-ignore-buffers-re "^\\*"))
-#+end_src
-
-** Vterm
-
-#+begin_src emacs-lisp
-  (use-package vterm
-    :defer t
-    :commands vterm
-    :config
-    ;; Speed up vterm
-    (setq vterm-timer-delay 0.01))
 #+end_src
 
 ** Tramp

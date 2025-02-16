@@ -327,6 +327,8 @@
   (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode))
 
 (use-package which-key
+  :custom
+  (which-key-idle-delay 0.2)
   :config
   (which-key-mode))
 
@@ -337,13 +339,6 @@
   (uniquify-separator "•")
   (uniquify-after-kill-buffer-p t)
   (uniquify-ignore-buffers-re "^\\*"))
-
-(use-package vterm
-  :defer t
-  :commands vterm
-  :config
-  ;; Speed up vterm
-  (setq vterm-timer-delay 0.01))
 
 (setq tramp-terminal-type "tramp")
 
