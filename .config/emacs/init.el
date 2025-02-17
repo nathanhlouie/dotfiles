@@ -326,11 +326,36 @@
   (compile-angel-on-load-mode)
   (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode))
 
+(use-package god-mode
+  :demand t
+  :custom
+  (god-exempt-major-modes nil)
+  (god-exempt-predicates nil)
+  :bind (("<escape>" . (lambda () (interactive) (god-local-mode 1)))
+         ("C-x C-1" . delete-other-windows)
+         ("C-x C-2" . split-window-below)
+         ("C-x C-3" . split-window-right)
+         ("C-x C-0" . delete-window)
+         :map isearch-mode-map
+         ("<escape>" . god-mode-isearch-activate)
+         :map god-mode-isearch-map
+         ("<escape>" . god-mode-isearch-disable)
+         :map god-local-mode-map
+         ("i" . god-local-mode)
+         ("." . repeat)
+         ("[" . backward-paragraph)
+         ("]" . forward-paragraph))
+  :config
+  (god-mode)
+  (require 'god-mode-isearch))
+
 (use-package which-key
+  :after (god-mode)
   :custom
   (which-key-idle-delay 0.2)
   :config
-  (which-key-mode))
+  (which-key-mode)
+  (which-key-enable-god-mode-support))
 
 (use-package uniquify
   :ensure nil
