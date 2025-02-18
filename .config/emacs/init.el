@@ -297,21 +297,22 @@
 
 (when (eq system-type 'darwin)
   (setq ns-use-native-fullscreen t
-	mac-option-key-is-meta nil
-	mac-command-key-is-meta t
-	mac-command-modifier 'meta
-	mac-option-modifier nil
-	mac-use-title-bar nil))
+        mac-option-key-is-meta nil
+        mac-command-key-is-meta t
+        mac-command-modifier 'meta
+        mac-option-modifier nil
+        mac-use-title-bar nil)
+  (setq dired-use-ls-dired nil))
 
 (defun copy-from-osx ()
   (shell-command-to-string "pbpaste"))
 (defun paste-to-osx (text &optional push)
   (let ((process-connection-type nil))
     (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-  (process-send-string proc text)
-  (process-send-eof proc))))
+      (process-send-string proc text)
+      (process-send-eof proc))))
 (when (and (not (display-graphic-p))
-	   (eq system-type 'darwin))
+           (eq system-type 'darwin))
   (setq interprogram-cut-function 'paste-to-osx)
   (setq interprogram-paste-function 'copy-from-osx))
 
