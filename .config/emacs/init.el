@@ -90,9 +90,16 @@
 
 (setq abbrev-file-name (expand-file-name "abbrev_defs" user-emacs-directory))
 
-(global-hl-line-mode 1)
+(setq x-underline-at-descent-line nil)
+(setq indicate-buffer-boundaries 'left)
+
+(cua-mode 1)
 (winner-mode 1)
 (delete-selection-mode 1)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(add-hook 'text-mode-hook 'visual-line-mode)
+(let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
+  (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
 
 (setq delete-by-moving-to-trash (not noninteractive))
 (setq find-file-suppress-same-file-warnings t)
@@ -127,6 +134,10 @@
 (setq revert-without-query (list ".")
       auto-revert-stop-on-user-input nil
       auto-revert-verbose t)
+
+(setq auto-revert-avoid-polling t
+      auto-revert-interval 5
+      auto-revert-check-vc-info t)
 
 (setq global-auto-revert-non-file-buffers t)
 
@@ -187,6 +198,9 @@
 (pixel-scroll-precision-mode 1)
 
 (setq mouse-yank-at-point nil)
+
+(setq mouse-wheel-tilt-scroll t
+      mouse-wheel-flip-direction t)
 
 (setq mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
       mouse-wheel-scroll-amount-horizontal 2)
@@ -403,3 +417,19 @@
 (setq flymake-show-diagnostics-at-end-of-line nil)
 (setq flymake-suppress-zero-counters t)
 (setq flymake-wrap-around nil)
+
+(use-package transient
+  :defer t)
+
+(use-package magit
+  :defer t
+  :bind (("C-c g g" . 'magit-status)
+         ("C-c g l" . 'magit-log-current)
+         ("C-c g d" . 'magit-diff-buffer-file))
+  :custom
+  (magit-diff-refine-hunk 'all)
+  :config
+  (transient-bind-q-to-quit))
+
+(use-package forge
+  :after magit)
