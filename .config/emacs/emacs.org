@@ -789,14 +789,26 @@ A Git interface.
 
   (use-package magit
     :defer t
-    :bind (("C-c g g" . 'magit-status)
-           ("C-c g l" . 'magit-log-current)
-           ("C-c g d" . 'magit-diff-buffer-file))
+    :bind
+    (("C-c g b" . 'magit-branch)
+     ("C-c g B" . 'magit-blame)
+     ("C-c g c" . 'magit-clone)
+     ("C-c g f" . 'magit-find-file)
+     ("C-c g i" . 'magit-init)
+     ("C-c g l" . 'magit-log-buffer-file)
+     ("C-c g m" . 'magit-dispatch)
+     ("C-c g S" . 'magit-stage-file)
+     ("C-c g s" . 'magit-status)
+     ("C-c g U" . 'magit-unstage-file))
     :custom
     (magit-diff-refine-hunk 'all)
     :config
     (transient-bind-q-to-quit))
 
   (use-package forge
-    :after magit)
+    :after magit
+    :custom
+    (forge-add-default-bindings nil)
+    (forge-display-in-status-buffer nil)
+    (forge-add-pullreq-refspec nil))
 #+end_src
