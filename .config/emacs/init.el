@@ -348,6 +348,12 @@
 
 (setq tramp-terminal-type "tramp")
 
+(use-package exec-path-from-shell
+  :demand t
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
 (unload-feature 'eldoc t)
 (setq custom-delayed-init-variables '())
 (setq global-eldoc-mode nil)
@@ -376,6 +382,7 @@
 (setq jsonrpc-event-hook nil)
 (setq eglot-events-buffer-size 0)
 (setq eglot-report-progress nil)
+(fset #'jsonrpc--log-event #'ignore)
 
 (setq eglot-events-buffer-config '(:size 0 :format full))
 
@@ -456,7 +463,7 @@
          ("C-c m" . consult-man)
          ("C-c i" . consult-info)
          ([remap Info-search] . consult-info)
-         ([rebind switch-to-buffer] #'consult-buffer)
+         ([rebind switch-to-buffer] . consult-buffer)
          ("C-x M-:" . consult-complex-command)
          ("C-x b" . consult-buffer)
          ("C-x 4 b" . consult-buffer-other-window)
@@ -514,14 +521,14 @@
    :preview-key '(:debounce 0.4 any)))
 
 (use-package orderless
-  :defer t
+  :demand t
   :custom
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package marginalia
-  :defer t
+  :demand t
   :config
   (marginalia-mode))
 
@@ -541,12 +548,12 @@
                  (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
-  :defer t
+  :defer 1
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package wgrep
-  :defer t)
+  :defer 1)
 
 (use-package cape
   :demand t
@@ -562,12 +569,18 @@
 (use-package flymake
   :demand t
   :config
-  (add-hook 'prog-mode-hook #'flymake-mode)
+  (add-hook 'prog-mode-hook #'flymake-mode))
 
 (use-package eglot
   :demand t
   :config
   (add-hook 'prog-mode-hook #'eglot-ensure))
+
+(use-package eglot-booster
+  :ensure (:type git :host github :repo "jdtsmith/eglot-booster")
+  :after (eglot)
+  :config
+  (eglot-booster-mode))
 
 (use-package apheleia
   :demand t
@@ -598,7 +611,7 @@
   (corfu-candidate-overlay-mode))
 
 (use-package diff-hl
-  :defer t
+  :demand t
   :config
   (add-hook 'prog-mode-hook #'diff-hl-mode))
 
@@ -606,3 +619,31 @@
   :defer t
   :config
   (editorconfig-mode t))
+
+(use-package rg
+  :demand t
+  :bind ("C-x p /" . rg-project))
+
+(use-package dape
+  :defer t
+  :config
+  (repeat-mode))
+
+(use-package eat
+  :demand t
+  :custom
+  (eat-kill-buffer-on-exit t)
+  (eat-enable-mouse t))
+
+(use-package auctex
+  :elpaca (auctex :repo "https://git.savannah.gnu.org/git/auctex.git" :branch "main"
+                  :pre-build (("make" "elpa"))
+                  :build (:not elpaca--compile-info) ;; Make will take care of this step
+                  :files ("*.el" "doc/*.info*" "etc" "images" "latex" "style")
+                  :version (lambda (_) (require 'auctex) AUCTeX-version))
+  :custom
+  (TeX-auto-save t)
+  (TeXX-parse-self t)
+  :config
+  (setq-default TeX-master nil)
+  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))

@@ -735,6 +735,20 @@ Transparent Remote Access, Multiple Protocols, editing remote files
 
 If the above doesn’t work, use =sshx= instead of =ssh=. See this [[https://www.emacswiki.org/emacs/TrampMode#h5o-9][link]] for more details.
 
+** Exec Path From Shell
+
+#+begin_quote
+Ensure environment variables inside Emacs look the same as in the shell.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package exec-path-from-shell
+    :demand t
+    :config
+    (when (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize)))
+#+end_src
+
 ** Dependencies
 
 Seems like Elpaca has issues with how =eldoc= and =seq= are installed. This should get rid of =Warning (emacs): eldoc loaded before Elpaca bactivation=.
@@ -768,6 +782,7 @@ Seems like Elpaca has issues with how =eldoc= and =seq= are installed. This shou
   (setq jsonrpc-event-hook nil)
   (setq eglot-events-buffer-size 0)
   (setq eglot-report-progress nil)
+  (fset #'jsonrpc--log-event #'ignore)
 
   (setq eglot-events-buffer-config '(:size 0 :format full))
 
@@ -872,7 +887,7 @@ Uses completing-read for search and navigation.
            ("C-c m" . consult-man)
            ("C-c i" . consult-info)
            ([remap Info-search] . consult-info)
-           ([rebind switch-to-buffer] #'consult-buffer)
+           ([rebind switch-to-buffer] . consult-buffer)
            ("C-x M-:" . consult-complex-command)
            ("C-x b" . consult-buffer)
            ("C-x 4 b" . consult-buffer-other-window)
@@ -938,7 +953,7 @@ An orderless completion style that matches candidates in any order.
 
 #+begin_src emacs-lisp
   (use-package orderless
-    :defer t
+    :demand t
     :custom
     (completion-styles '(orderless basic))
     (completion-category-defaults nil)
@@ -953,7 +968,7 @@ Adds marginalia annotations to completion candidates.
 
 #+begin_src emacs-lisp
   (use-package marginalia
-    :defer t
+    :demand t
     :config
     (marginalia-mode))
 #+end_src
@@ -981,12 +996,12 @@ Rich command actions based on a target.
                    (window-parameters (mode-line-format . none)))))
 
   (use-package embark-consult
-    :defer t
+    :defer 1
     :hook
     (embark-collect-mode . consult-preview-at-point-mode))
 
   (use-package wgrep
-    :defer t)
+    :defer 1)
 #+end_src
 
 ** Cape
@@ -1018,7 +1033,7 @@ Syntax checking and linting.
   (use-package flymake
     :demand t
     :config
-    (add-hook 'prog-mode-hook #'flymake-mode)
+    (add-hook 'prog-mode-hook #'flymake-mode))
 #+end_src
 
 ** Eglot
@@ -1032,6 +1047,14 @@ Emacs LSP client.
     :demand t
     :config
     (add-hook 'prog-mode-hook #'eglot-ensure))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package eglot-booster
+    :ensure (:type git :host github :repo "jdtsmith/eglot-booster")
+    :after (eglot)
+    :config
+    (eglot-booster-mode))
 #+end_src
 
 ** Apheleia
@@ -1086,7 +1109,7 @@ Git gutter.
 
 #+begin_src emacs-lisp
   (use-package diff-hl
-    :defer t
+    :demand t
     :config
     (add-hook 'prog-mode-hook #'diff-hl-mode))
 #+end_src
@@ -1102,4 +1125,64 @@ Consistent coding style.
     :defer t
     :config
     (editorconfig-mode t))
+#+end_src
+
+** Ripgrep
+
+#+begin_quote
+Faster grep.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package rg
+    :demand t
+    :bind ("C-x p /" . rg-project))
+#+end_src
+
+** Dape
+
+#+begin_quote
+Debug Adapter Protocol for Emacs.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package dape
+    :defer t
+    :config
+    (repeat-mode))
+#+end_src
+
+** Eat
+
+#+begin_quote
+Emulate A Terminal.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package eat
+    :demand t
+    :custom
+    (eat-kill-buffer-on-exit t)
+    (eat-enable-mouse t))
+#+end_src
+
+** LaTex
+
+#+begin_quote
+Extensible package for writing and formatting TeX in Emacs.
+#+end_quote
+
+#+begin_src emacs-lisp
+  (use-package auctex
+    :elpaca (auctex :repo "https://git.savannah.gnu.org/git/auctex.git" :branch "main"
+                    :pre-build (("make" "elpa"))
+                    :build (:not elpaca--compile-info) ;; Make will take care of this step
+                    :files ("*.el" "doc/*.info*" "etc" "images" "latex" "style")
+                    :version (lambda (_) (require 'auctex) AUCTeX-version))
+    :custom
+    (TeX-auto-save t)
+    (TeXX-parse-self t)
+    :config
+    (setq-default TeX-master nil)
+    (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))
 #+end_src
