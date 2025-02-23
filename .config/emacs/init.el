@@ -529,11 +529,10 @@
 (use-package cape
   :demand t
   :bind ("C-c p" . cape-prefix-map)
-  :config
+  :init
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
   (add-hook 'completion-at-point-functions #'cape-elisp-block)
-  (add-hook 'completion-at-point-functions #'cape-history)
   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
 (use-package flymake
@@ -565,21 +564,30 @@
      (not (or (bound-and-true-p mct--active)
               (bound-and-true-p vertico--input)
               (eq (current-local-map) read-passwd-map)))))
-  (corfu-quit-no-match t)
   (corfu-cycle t)
   (corfu-auto t)
-  (corfu-preselect 'prompt)
-  (completion-category-overrides '((eglot (styles orderless))
-                                   (eglot-capf (styles orderless))))
+  (corfu-auto-delay 0.1)
+  (corfu-auto-prefix 1)
+  (corfu-quit-no-match 'separator)
+  (corfu-popupinfo-delay '(0.1 . 0.1))
   (text-mode-ispell-word-completion nil)
   :config
-  (keymap-unset corfu-map "RET")
+  (defun orderless-fast-dispatch (word index total)
+    (and (= index 0) (= total 1) (length< word 4)
+         (cons 'orderless-literal-prefix word)))
+
+  (orderless-define-completion-style orderless-fast
+    (orderless-style-dispatchers '(orderless-fast-dispatch))
+    (orderless-matching-styles '(orderless-literal orderless-regexp)))
+
+  (add-hook 'corfu-mode-hook
+            (lambda ()
+              (setq-local completion-styles '(orderless-fast basic)
+                          completion-category-overrides nil
+                          completion-category-defaults nil)))
+  (keymap-set corfu-map "RET" #'corfu-send)
   (corfu-popupinfo-mode)
-  (add-hook 'prog-mode-hook #'corfu-mode)
-  (add-hook 'shell-mode-hook #'corfu-mode)
-  (add-hook 'eshell-mode-hook (lambda ()
-                                (setq-local corfu-auto nil)
-                                (corfu-mode))))
+  (global-corfu-mode))
 
 (use-package diff-hl
   :demand t
