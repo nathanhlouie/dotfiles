@@ -231,7 +231,7 @@
 (setq-default indent-tabs-mode nil
               tab-width 4)
 
-(setq-default tab-always-indent nil)
+(setq-default tab-always-indent 'complete)
 
 (setq read-extended-command-predicate #'command-completion-default-include-p)
 
@@ -348,6 +348,11 @@
 
 (setq tramp-terminal-type "tramp")
 
+(use-package gcmh
+  :demand t
+  :config
+  (gcmh-mode))
+
 (use-package exec-path-from-shell
   :demand t
   :config
@@ -431,9 +436,7 @@
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
   (completion-ignore-case t)
-  (vertico-scroll-margin 0)
-  (vertico-count 10)
-  (vertico-resize t)
+  (vertico-count 20)
   (vertico-cycle t)
   (vertico-multiform-commands '((consult-line buffer)
                                 (consult-imenu reverse buffer)))
@@ -457,51 +460,15 @@
 
 (use-package consult
   :demand t
-  :bind (("C-c M-x" . consult-mode-command)
-         ("C-c h" . consult-history)
-         ("C-c k" . consult-kmacro)
-         ("C-c m" . consult-man)
-         ("C-c i" . consult-info)
-         ([remap Info-search] . consult-info)
+  :bind (([remap Info-search] . consult-info)
          ([rebind switch-to-buffer] . consult-buffer)
-         ("C-x M-:" . consult-complex-command)
-         ("C-x b" . consult-buffer)
-         ("C-x 4 b" . consult-buffer-other-window)
-         ("C-x 5 b" . consult-buffer-other-frame)
-         ("C-x t b" . consult-buffer-other-tab)
-         ("C-x r b" . consult-bookmark)
-         ("C-x p b" . consult-project-buffer)
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)
-         ("C-M-#" . consult-register)
-         ("M-y" . consult-yank-pop)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)
-         ("M-g g" . consult-goto-line)
-         ("M-g M-g" . consult-goto-line)
-         ("M-g o" . consult-outline)
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ("M-s d" . consult-find)
-         ("M-s c" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)
-         ("M-s e" . consult-isearch-history)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         :map minibuffer-local-map
-         ("M-s" . consult-history)
-         ("M-r" . consult-history))
+         ([remap goto-line] . consult-goto-line)
+         ([remap yank-pop] . consult-yank-pop)
+         ("M-s M-g" . consult-grep)
+         ("M-s M-f" . consult-find)
+         ("M-s M-o" . consult-outline)
+         ("M-s M-l" . consult-line)
+         ("M-s M-b" . consult-buffer))
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :custom
   (register-preview-delay 0.5)
@@ -548,12 +515,16 @@
                  (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
-  :defer 1
+  :after (embark)
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package wgrep
-  :defer 1)
+  :demand t
+  :bind ( :map grep-mode-map
+          ("e" . wgrep-change-to-wgrep-mode)
+          ("C-x C-q" . wgrep-change-to-wgrep-mode)
+          ("C-c C-c" . wgrep-finish-edit)))
 
 (use-package cape
   :demand t
@@ -574,7 +545,10 @@
 (use-package eglot
   :demand t
   :config
-  (add-hook 'prog-mode-hook #'eglot-ensure))
+  (add-hook 'prog-mode-hook #'eglot-ensure)
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode)
+                 "basedpyright-langserver" "--stdio")))
 
 (use-package eglot-booster
   :ensure (:type git :host github :repo "jdtsmith/eglot-booster")
@@ -590,25 +564,26 @@
 (use-package corfu
   :demand t
   :custom
-  (corfu-quit-no-match t)
   (global-corfu-minibuffer
    (lambda ()
      (not (or (bound-and-true-p mct--active)
               (bound-and-true-p vertico--input)
               (eq (current-local-map) read-passwd-map)))))
+  (corfu-quit-no-match t)
   (corfu-cycle t)
   (corfu-auto t)
   (corfu-preselect 'prompt)
   (completion-category-overrides '((eglot (styles orderless))
                                    (eglot-capf (styles orderless))))
+  (text-mode-ispell-word-completion nil)
   :config
   (keymap-unset corfu-map "RET")
-  (add-hook 'prog-mode-hook #'corfu-mode))
-
-(use-package corfu-candidate-overlay
-  :demand t
-  :config
-  (corfu-candidate-overlay-mode))
+  (corfu-popupinfo-mode)
+  (add-hook 'prog-mode-hook #'corfu-mode)
+  (add-hook 'shell-mode-hook #'corfu-mode)
+  (add-hook 'eshell-mode-hook (lambda ()
+                            (setq-local corfu-auto nil)
+                            (corfu-mode))))
 
 (use-package diff-hl
   :demand t
