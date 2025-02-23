@@ -13,3 +13,4 @@
 .config/emacs/saveplace
 .config/emacs/tramp
 .config/emacs/transient/
+.config/emacs/tree-sitter/

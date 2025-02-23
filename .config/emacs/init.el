@@ -582,17 +582,41 @@
   (add-hook 'prog-mode-hook #'corfu-mode)
   (add-hook 'shell-mode-hook #'corfu-mode)
   (add-hook 'eshell-mode-hook (lambda ()
-                            (setq-local corfu-auto nil)
-                            (corfu-mode))))
+                                (setq-local corfu-auto nil)
+                                (corfu-mode))))
 
 (use-package diff-hl
   :demand t
   :config
   (add-hook 'prog-mode-hook #'diff-hl-mode))
 
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
+
+(use-package indent-bars
+  :demand t
+  :custom
+  (indent-bars-treesit-support t)
+  (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  :config
+  (require 'indent-bars-ts)
+  (add-hook 'prog-mode-hook #'indent-bars-mode))
+
 (use-package editorconfig
   :defer t
   :config
+  (defun oxcl/update-indent-bars-with-editorconfig (size)
+    (when (bound-and-true-p indent-bars-mode)
+      (setq indent-bars-spacing-override size)
+      (indent-bars-reset)))
+  (dolist (_mode editorconfig-indentation-alist)
+    (let ((_varlist (cdr _mode)))
+      (setcdr _mode (append '((_ . oxcl/update-indent-bars-with-editorconfig))
+                            (if (listp _varlist) _varlist `(,_varlist))))))
   (editorconfig-mode t))
 
 (use-package rg
