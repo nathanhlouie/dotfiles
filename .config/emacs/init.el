@@ -532,7 +532,6 @@
   :config
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-line)
   (add-hook 'completion-at-point-functions #'cape-elisp-block)
   (add-hook 'completion-at-point-functions #'cape-history)
   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
@@ -545,10 +544,7 @@
 (use-package eglot
   :demand t
   :config
-  (add-hook 'prog-mode-hook #'eglot-ensure)
-  (add-to-list 'eglot-server-programs
-               '((python-mode python-ts-mode)
-                 "basedpyright-langserver" "--stdio")))
+  (add-hook 'prog-mode-hook #'eglot-ensure))
 
 (use-package eglot-booster
   :ensure (:type git :host github :repo "jdtsmith/eglot-booster")
@@ -602,6 +598,11 @@
   :custom
   (indent-bars-treesit-support t)
   (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  (indent-bars-pattern ".")
+  (indent-bars-width-frac 0.2)
+  (indent-bars-pad-frac 0.2)
+  (indent-bars-color-by-depth '(:regexp "outline-\\([0-9]+\\)" :blend 1))
+  (indent-bars-highlight-current-depth '(:pattern "." :pad 0.1 :width 0.45))
   :config
   (require 'indent-bars-ts)
   (add-hook 'prog-mode-hook #'indent-bars-mode))

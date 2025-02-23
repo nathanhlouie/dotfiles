@@ -43,3 +43,5 @@ brewup () {
 }
 
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+export PATH="$PATH:/Users/nathan/.local/bin"
