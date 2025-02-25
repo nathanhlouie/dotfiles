@@ -1208,12 +1208,11 @@ Extensible package for writing and formatting TeX in Emacs.
   (use-package auctex
     :elpaca (auctex :repo "https://git.savannah.gnu.org/git/auctex.git" :branch "main"
                     :pre-build (("make" "elpa"))
-                    :build (:not elpaca--compile-info) ;; Make will take care of this step
+                    :build (:not elpaca--compile-info)
                     :files ("*.el" "doc/*.info*" "etc" "images" "latex" "style")
                     :version (lambda (_) (require 'auctex) AUCTeX-version))
     :custom
     (TeX-auto-save t)
-    (TeXX-parse-self t)
     :config
     (setq-default TeX-master nil)
     (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))
