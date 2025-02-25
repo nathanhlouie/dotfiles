@@ -1,18 +1,18 @@
 [user]
-	name = Nathan Louie
-	email = nathanhlouie@gmail.com
-	signingkey = EDC296781FBB754F
+    name = Nathan Louie
+    email = nathanhlouie@gmail.com
+    signingkey = EDC296781FBB754F
 [branch]
     sort = -committerdate
 [color]
-	ui = true
+    ui = true
 [column]
-	ui = auto
+    ui = auto
 [commit]
-	gpgsign = true
+    gpgsign = true
     verbose = true
 [core]
-	editor = emacs -c -a=""
+    editor = emacs -c -a=""
     excludesfile = ~/.gitignore
 [diff]
     algorithm = histogram
@@ -26,7 +26,7 @@
 [help]
     autocorrect = prompt
 [init]
-	defaultBranch = main
+    defaultBranch = main
 [merge]
     conflictstyle = zdiff3
 [pull]
