@@ -1222,6 +1222,8 @@ Extensible package for writing and formatting TeX in Emacs.
 
 #+begin_quote
 WIP, NANO looks really good and I want to make this look just as good. Also Emacs 30 should be coming out soon on emacs-mac (hopefully). And, I want to redo the literate config into separate files for easier organization. Why do we do things? Because they're fun and it makes me feel better. THIS WILL BE FIXED SOON!!!!!!
+
+
 #+end_quote
 
 #+begin_src emacs-lisp
