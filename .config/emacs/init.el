@@ -654,3 +654,5 @@
   :config
   (setq-default TeX-master nil)
   (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))
+
+
