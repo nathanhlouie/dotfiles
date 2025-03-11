@@ -1,4 +1,36 @@
-;;; init.el -*- no-byte-compile: t; lexical-binding: t; -*-
+;;; init.el --- Initialization file -*- lexical-binding: t; -*-
+
+
+;; This file is not part of GNU Emacs
+
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; For a full copy of the GNU General Public License
+;; see <http://www.gnu.org/licenses/>.
+
+
+;;; Commentary:
+
+;; Why Emacs?
+;; I mean... why not? Emacs is pretty cool and configurable for my needs.
+
+;; OSX
+;; I use emacs-mac over emacs-plus because it feels more native to OSX
+;; and I don't use emacsclient. I will continue to use emacs-mac until
+;; there's news that it will no longer be maintained.
+
+;; Use the following for better font rendering:
+;; defaults write org.gnu.Emacs AppleFontSmoothing -int 0
+
+;;; Code:
 
 (defvar elpaca-installer-version 0.8)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -656,3 +688,7 @@
   (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))
 
 
+
+(provide 'init)
+
+;;; init.el ends here
