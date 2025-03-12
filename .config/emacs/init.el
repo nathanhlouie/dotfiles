@@ -27,10 +27,11 @@
 ;; and I don't use emacsclient. I will continue to use emacs-mac until
 ;; there's news that it will no longer be maintained.
 
-;; Use the following for better font rendering:
-;; defaults write org.gnu.Emacs AppleFontSmoothing -int 0
-
 ;;; Code:
+
+(add-to-list 'load-path user-emacs-directory)
+(require 'layout)
+(require 'faces)
 
 (defvar elpaca-installer-version 0.8)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
