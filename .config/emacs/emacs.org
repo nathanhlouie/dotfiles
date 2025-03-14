@@ -6,17 +6,15 @@
 
 *** Why Emacs?
 
-I mean... why not? Emacs is far older than I am and seems like it'll stick around for a while longer.
-
-1. I can use ELisp; Lispy languages are cool
-2. Emacs is stable, albeit slow
+1. Lispy languages are cool
+2. Emacs is stable
 3. Each package has its own niche and does it well
 
-At the end of the day, I want mastery over the tools that I use, and I want to have fun doing so.
+At the end of the day, this is just part of the fun that I have doing things.
 
 *** Why a literate configuration?
 
-I'm going to forgot why I put things into my configuration. This is a gift for my future self.
+Because it's easier to explain things in prose than in comments scattered around the config.
 
 Use =C-c C-c= to evaluate code blocks and =C-c C-v C-t= to tangle the file.
 
@@ -27,368 +25,288 @@ Use =C-c C-c= to evaluate code blocks and =C-c C-v C-t= to tangle the file.
 *** Why emacs-mac over emacs-plus?
 
 1. It generally feels more like a native OSX citizen (frames, pixels, scrolling, display)
-2. The latest Emacs branch doesn't appeal to me; I'm fine using 29.X
-3. I don't use emacsclient
+2. I don't use emacsclient
 
-The font face on Emacs is unusually bold due to a quirk in OSX font rendering:
+I'll switch when the emacs-mac fork is no longer maintained.
+
+On OSX, type the line below (in terminal) to get a 1 pixel border:
 
 #+begin_src bash :tangle no
-  defaults write org.gnu.Emacs AppleFontSmoothing -int 0
+  defaults write com.apple.universalaccess increaseContrast -bool YES
+#+end_src
+
+To control anti-aliasing on OSX:
+
+#+begin_src bash :tangle no
+  defaults write org.gnu.Emacs AppleFontSmoothing -int 0 # none
+  defaults write org.gnu.Emacs AppleFontSmoothing -int 1 # light
+  defaults write org.gnu.Emacs AppleFontSmoothing -int 2 # medium
+  defaults write org.gnu.Emacs AppleFontSmoothing -int 3 # strong
 #+end_src
 
 * =early-init.el=
-:PROPERTIES:
-:CUSTOM_ID: early-init
-:END:
 
 The [[file:early-init.el][file]] that contains customizations that need to take effect during Emacs startup earlier than the normal =init.el= file. Customizations related to GUI features will not work reliably in =early-init.el=, but if needed use hooks to do so.
 
-See [[https://github.com/jamescherti/minimal-emacs.d][minimal-emacs.d]] for more information.
-
-** [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]]
-
 #+begin_src emacs-lisp :tangle "early-init.el"
-  ;;; early-init.el -*- no-byte-compile: t; lexical-binding: t; -*-
+  ;;; early-init.el --- Early initialization file -*- lexical-binding: t; -*-
+
+
+  ;; This file is not part of GNU Emacs
+
+  ;; This file is free software; you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation; either version 3, or (at your option)
+  ;; any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; For a full copy of the GNU General Public License
+  ;; see <http://www.gnu.org/licenses/>.
+
+
+  ;;; Commentary:
+
+  ;; The file that contains customizations that need to take effect during Emacs
+  ;; startup earlier than the normal =init.el= file. Customizations related to GUI
+  ;; features will not work reliably in =early-init.el=, but if needed use hooks
+  ;; to do so.
+
+  ;;; Code:
 #+end_src
 
-** Garbage Collection
+No site-wide runtime initializations and default library
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (setq site-run-file nil
+        inhibit-default-init t)
+#+end_src
+
+Very large threshold for garbage collector during initialization which will be reset later.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
   (setq gc-cons-threshold most-positive-fixnum
         gc-cons-percentage 0.5)
-
   (add-hook 'emacs-startup-hook
             #'(lambda () (setq gc-cons-threshold (* 16 1024 1024)
                                gc-cons-percentage 0.1)))
 #+end_src
 
-** Miscellaneous
+Use UTF-8 instead of English.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
   (set-language-environment "UTF-8")
-  (setq default-input-method nil)
 #+end_src
 
-** Performance
+Don't resize the frame when UI elements open.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-  (setq load-prefer-newer t)
-  (setq inhibit-compacting-font-caches t)
-
-  (unless (daemonp)
-    (let ((old-value (default-toplevel-value 'file-name-handler-alist)))
-      (set-default-toplevel-value 'file-name-handler-alist
-                                  (if (eval-when-compile
-                                        (locate-file-internal "calc-loaddefs.el"
-                                                              load-path))
-                                      nil
-                                    (list (rassq 'jka-compr-handler old-value))))
-      (put 'file-name-handler-alist 'initial-value old-value)
-      (define-advice command-line-1 (:around (fn args-left) respect-file-handlers)
-        (let ((file-name-handler-alist
-               (if args-left old-value file-name-handler-alist)))
-          (funcall fn args-left)))
-      (add-hook 'emacs-startup-hook
-                (lambda ()
-                  (set-default-toplevel-value
-                   'file-name-handler-alist
-                   (delete-dups (append file-name-handler-alist old-value))))
-                101))
-
-    (unless noninteractive
-
-      (setq-default inhibit-message t)
-
-      (defun minimal-emacs--reset-inhibited-vars-h ()
-        (setq-default inhibit-message nil)
-        (remove-hook 'post-command-hook #'minimal-emacs--reset-inhibited-vars-h))
-
-      (add-hook 'post-command-hook
-                #'minimal-emacs--reset-inhibited-vars-h -100)
-
-      (put 'mode-line-format 'initial-value
-           (default-toplevel-value 'mode-line-format))
-      (setq-default mode-line-format nil)
-      (dolist (buf (buffer-list))
-        (with-current-buffer buf
-          (setq mode-line-format nil)))
-
-      (defun minimal-emacs--startup-load-user-init-file (fn &rest args)
-        "Advice for startup--load-user-init-file to reset mode-line-format."
-        (unwind-protect
-            (apply fn args)
-          (setq-default inhibit-message nil)
-          (unless (default-toplevel-value 'mode-line-format)
-            (setq-default mode-line-format
-                          (get 'mode-line-format 'initial-value)))))
-
-      (advice-add 'startup--load-user-init-file :around
-                  #'minimal-emacs--startup-load-user-init-file))
-
-    (setq frame-inhibit-implied-resize t)
-    (setq auto-mode-case-fold nil)
-
-    (setq inhibit-startup-screen t
-          inhibit-startup-message t
-          inhibit-startup-echo-area-message user-login-name)
-    (setq initial-buffer-choice nil
-          inhibit-startup-buffer-menu t
-          inhibit-x-resources t)
-
-    (setq-default bidi-display-reordering 'left-to-right
-                  bidi-paragraph-direction 'left-to-right)
-
-    (setq bidi-inhibit-bpa t)
-
-    (advice-add #'display-startup-echo-area-message :override #'ignore)
-
-    (advice-add #'display-startup-screen :override #'ignore)
-
-    (setq initial-major-mode 'fundamental-mode
-          initial-scratch-message nil)
-
-    (unless (eq system-type 'darwin)
-      (setq command-line-ns-option-alist nil))
-    (unless (memq initial-window-system '(x pgtk))
-      (setq command-line-x-option-alist nil)))
+  (setq frame-inhibit-implied-resize t)
 #+end_src
 
-** Native Compilation
+Don't try again to match case insensitive through alist.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-  (if (and (featurep 'native-compile)
-           (fboundp 'native-comp-available-p)
-           (native-comp-available-p))
-      (setq native-comp-jit-compilation t
-            package-native-compile t)
-    (setq features (delq 'native-compile features)))
-
-  (setq native-comp-async-report-warnings-errors 'silent)
-  (setq native-comp-warning-on-missing-source nil)
-
-  (setq debug-on-error nil
-        jka-compr-verbose nil)
-
-  (setq byte-compile-warnings nil)
-  (setq byte-compile-verbose nil)
+  (setq auto-mode-case-fold nil)
 #+end_src
 
-** UI
+Disable startup screens and messages.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (setq inhibit-splash-screen t
+        inhibit-startup-buffer-menu t
+        inhibit-startup-echo-area-message user-login-name
+        inhibit-startup-message t
+        inhibit-startup-screen t
+        inhibit-x-resources t)
+#+end_src
+
+Set the initial buffer and major-mode and message.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (setq initial-buffer-choice t
+        initial-major-mode 'fundamental-mode
+        initial-scratch-message nil)
+#+end_src
+
+Native compilation.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (when (native-comp-available-p)
+    (setopt native-comp-async-report-warnings-errors 'silent
+            native-comp-warning-on-missing-source nil
+            package-native-compile t))
+#+end_src
+
+Verbosity settings.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (setq jka-compr-verbose nil
+        byte-compile-verbose nil
+        byte-compile-warnings nil)
+#+end_src
+
+Hide the UI elements.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
   (setq frame-title-format "%b"
         icon-title-format "%b")
-
-  (setq inhibit-splash-screen t)
-
   (push '(menu-bar-lines . 0) default-frame-alist)
-  (unless (memq window-system '(mac ns))
-    (setq menu-bar-mode nil))
-
-  (unless (daemonp)
-    (unless noninteractive
-      (when (fboundp 'tool-bar-setup)
-        (advice-add #'tool-bar-setup :override #'ignore)
-        (define-advice startup--load-user-init-file
-            (:after (&rest _) minimal-emacs-setup-toolbar)
-          (advice-remove #'tool-bar-setup #'ignore)
-          (when tool-bar-mode
-            (tool-bar-setup))))))
-  (push '(tool-bar-lines . 0) default-frame-alist)
-  (setq tool-bar-mode nil)
-
   (push '(vertical-scroll-bars) default-frame-alist)
   (push '(horizontal-scroll-bars) default-frame-alist)
-  (setq scroll-bar-mode nil)
-  (when (fboundp 'horizontal-scroll-bar-mode)
-    (horizontal-scroll-bar-mode -1))
-
   (when (bound-and-true-p tooltip-mode)
     (tooltip-mode -1))
-
-  (setq use-file-dialog nil)
-  (setq use-dialog-box nil)
+  (menu-bar-mode 1)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
+  (setq use-dialog-box nil
+        use-file-dialog nil
+        pop-up-windows nil
+        show-help-function nil)
 #+end_src
 
-** Package Management
+Using =straight.el=.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-  (setq package-enable-at-startup nil
-        use-package-always-ensure t)
+  (setq package-enable-at-startup nil)
+#+end_src
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  ;;; early-init.el ends here
 #+end_src
 
 * =init.el=
-:PROPERTIES:
-:CUSTOM_ID: init
-:END:
-
-** [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical binding]]
 
 #+begin_src emacs-lisp
-  ;;; init.el -*- no-byte-compile: t; lexical-binding: t; -*-
+  ;;; init.el --- Initialization file -*- lexical-binding: t; -*-
+
+
+  ;; This file is not part of GNU Emacs
+
+  ;; This file is free software; you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation; either version 3, or (at your option)
+  ;; any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; For a full copy of the GNU General Public License
+  ;; see <http://www.gnu.org/licenses/>.
+
+
+  ;;; Commentary:
+
+  ;; Why Emacs?
+  ;; I mean... why not? Emacs is pretty cool and configurable for my needs.
+
+  ;; OSX
+  ;; I use emacs-mac over emacs-plus because it feels more native to OSX
+  ;; and I don't use emacsclient. I will continue to use emacs-mac until
+  ;; there's news that it will no longer be maintained.
+
+  ;;; Code:
 #+end_src
 
-** Elpaca
+** =straight.el=
 
-#+begin_quote
-An ELisp package manager.
-#+end_quote
+I'm using =straight.el= instead of =elpaca.el= because it seems to be more stable as of writing this, and it works in the way that I expect it to.
 
-Uses =use-package= instead of the =elpaca= macro. Make sure to use the =:wait= recipe keyword for blocking packages that are used in the init file itself. See [[https://github.com/progfolio/elpaca][Elpaca]] for more details.
+Disable checking for faster startup.
 
 #+begin_src emacs-lisp
-  (defvar elpaca-installer-version 0.8)
-  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                                :ref nil :depth 1
-                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                                :build (:not elpaca--activate-package)))
-  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-         (build (expand-file-name "elpaca/" elpaca-builds-directory))
-         (order (cdr elpaca-order))
-         (default-directory repo))
-    (add-to-list 'load-path (if (file-exists-p build) build repo))
-    (unless (file-exists-p repo)
-      (make-directory repo t)
-      (when (< emacs-major-version 28) (require 'subr-x))
-      (condition-case-unless-debug err
-          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                    ,@(when-let* ((depth (plist-get order :depth)))
-                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                    ,(plist-get order :repo) ,repo))))
-                    ((zerop (call-process "git" nil buffer t "checkout"
-                                          (or (plist-get order :ref) "--"))))
-                    (emacs (concat invocation-directory invocation-name))
-                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                    ((require 'elpaca))
-                    ((elpaca-generate-autoloads "elpaca" repo)))
-              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-            (error "%s" (with-current-buffer buffer (buffer-string))))
-        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-    (unless (require 'elpaca-autoloads nil t)
-      (require 'elpaca)
-      (elpaca-generate-autoloads "elpaca" repo)
-      (load "./elpaca-autoloads")))
-  (add-hook 'after-init-hook #'elpaca-process-queues)
-  (elpaca `(,@elpaca-order))
-
-  (elpaca elpaca-use-package
-    (elpaca-use-package-mode))
-
-  (elpaca-wait)
+  (setopt straight-check-for-modifications nil)
 #+end_src
 
-** Better Defaults
-*** Networking
+Bootstrap code.
 
 #+begin_src emacs-lisp
-  (setq ffap-machine-p-known 'reject)
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name
+          "straight/repos/straight.el/bootstrap.el"
+          (or (bound-and-true-p straight-base-dir)
+              user-emacs-directory)))
+        (bootstrap-version 7))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
 #+end_src
 
-*** Warnings
+Packages to install:
 
 #+begin_src emacs-lisp
-  (setq ad-redefinition-action 'accept)
-  (setq warning-suppress-types '((lexical-binding)))
-  (setq warning-minimum-level :error)
+    (setq package-list
+          '(
+
+            ))
 #+end_src
 
-*** Minibuffer
+** =nl-defaults.el=
 
 #+begin_src emacs-lisp
-  (setq enable-recursive-minibuffers t)
+  (require 'bind-key)
 
-  (setq minibuffer-prompt-properties
-        '(read-only t intangible t cursor-intangible t face
-                    minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  (add-to-list 'load-path user-emacs-directory)
+
+  (require 'nl-defaults)
 #+end_src
 
-*** UI
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  ;;; nl-defaults.el --- Sane Emacs defaults file -*- lexical-binding: t; -*-
 
-#+begin_src emacs-lisp
-  (setq idle-update-delay 1.0)
-  (if (boundp 'use-short-answers)
-      (setq use-short-answers t)
-    (advice-add #'yes-or-no-p :override #'y-or-n-p))
-  (defalias #'view-hello-file #'ignore)
+
+  ;; This file is not part of GNU Emacs
+
+  ;; This file is free software; you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation; either version 3, or (at your option)
+  ;; any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; For a full copy of the GNU General Public License
+  ;; see <http://www.gnu.org/licenses/>.
+
+
+  ;;; Commentary:
+
+  ;; The file contains changes to base Emacs settings that I think are more
+  ;; reasonable to work with.
+
+  ;;; Code:
 #+end_src
 
-*** Show Parenthesis
+*** Encoding
 
-#+begin_src emacs-lisp
-  (setq show-paren-delay 0.1
-        show-paren-highlight-openparen t
-        show-paren-when-point-inside-paren t
-        show-paren-when-point-in-periphery t)
-  (show-paren-mode +1)
+Use UTF-8 encoding whenever possible.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (prefer-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-language-environment "English")
+  (set-terminal-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
 #+end_src
 
-*** Compilation
+*** Recovery
 
-#+begin_src emacs-lisp
-  (setq compilation-always-kill t
-        compilation-ask-about-save nil
-        compilation-scroll-output 'first-error)
-#+end_src
+If Emacs crashes, use =M-x recover-session= to recover the files.
 
-*** Miscellaneous
-
-#+begin_src emacs-lisp
-  (setq whitespace-line-column nil)
-
-  (setq rainbow-delimiters-max-face-count 5)
-
-  (setq-default display-line-numbers-width 3)
-  (setq-default display-line-numbers-widen t)
-
-  (setq truncate-string-ellipsis "…")
-
-  (setq read-process-output-max (* 512 1024))
-
-  (setq redisplay-skip-fontification-on-input t)
-
-  (setq eldoc-documentation-strategy 'eldoc-documentation-compose-eagerly)
-
-  (setq abbrev-file-name (expand-file-name "abbrev_defs" user-emacs-directory))
-
-  (setq x-underline-at-descent-line nil)
-  (setq indicate-buffer-boundaries 'left)
-
-  (winner-mode 1)
-  (delete-selection-mode 1)
-  (electric-pair-mode 1)
-  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-  (add-hook 'text-mode-hook 'visual-line-mode)
-  (let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
-    (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
-#+end_src
-
-*** Files
-
-#+begin_src emacs-lisp
-  (setq delete-by-moving-to-trash (not noninteractive))
-  (setq find-file-suppress-same-file-warnings t)
-
-  (setq find-file-visit-truename t
-        vc-follow-symlinks t)
-
-  (setq split-width-threshold 170
-        split-height-threshold nil)
-
-  (setq window-divider-default-bottom-width 1
-        window-divider-default-places t
-        window-divider-default-right-width 1)
-#+end_src
-
-#+begin_src emacs-lisp
-  (setq create-lockfiles nil
-        make-backup-files nil)
-
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
   (setq auto-save-default t
         auto-save-include-big-deletions t
         auto-save-interval 200
@@ -404,187 +322,108 @@ Uses =use-package= instead of the =elpaca= macro. Make sure to use the =:wait= r
   (setq auto-save-include-big-deletions t)
 #+end_src
 
-*** Auto Revert
+*** Backups
 
-#+begin_src emacs-lisp
-  (setq revert-without-query (list ".")
-        auto-revert-stop-on-user-input nil
-        auto-revert-verbose t)
+Don't make backup or lock files to avoid cluttering.
 
-  (setq auto-revert-avoid-polling t
-        auto-revert-interval 5
-        auto-revert-check-vc-info t)
-
-  (setq global-auto-revert-non-file-buffers t)
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq create-lockfiles nil
+        make-backup-files nil)
 #+end_src
 
-*** Buffers
+*** Recent Files
 
-#+begin_src emacs-lisp
-  (setq switch-to-buffer-obey-display-actions t)
+Builds a persistent list of recently opened files.
 
-  (setq uniquify-buffer-name-style 'forward)
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (require 'recentf)
 
-  (setq comint-prompt-read-only t)
-  (setq comint-buffer-maximum-size 2048)
-
-  (setq confirm-nonexistent-file-or-buffer nil)
+  (setq recentf-exclude (list "^/\\(?:ssh\\|su\\|sudo\\)?:")
+        recentf-max-menu-items 10
+        recentf-max-saved-items 100)
 #+end_src
 
-*** Version Control
+Displays a message and prevents it from being logged (https://www.gnu.org/software/emacs/manual/html_node/elisp/Logging-Messages.html).
 
-#+begin_src emacs-lisp
-  (setq vc-git-print-log-follow t)
-  (setq vc-make-backup-files nil)
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (let (message-log-max)
+    (recentf-mode 1))
 #+end_src
 
-*** recentf
+*** History
 
-#+begin_src emacs-lisp
-  (setq recentf-max-saved-items 300)
-  (setq recentf-max-menu-items 15)
-  (setq recentf-auto-cleanup 'never)
-  (defun minimal-emacs--cleanup-hook ()
-    "Run `recentf-cleanup' if `recentf' is loaded and `recentf-mode' is enabled."
-    (when (and (featurep 'recentf)
-               recentf-mode
-               (fboundp 'recentf-cleanup))
-      (recentf-cleanup)))
-  (add-hook 'kill-emacs-hook #'minimal-emacs--cleanup-hook)
+Remove the text properties for kill ring entries to decrease load time (https://emacs.stackexchange.com/questions/4187).
 
-  (setq recentf-exclude (list "^/\\(?:ssh\\|su\\|sudo\\)?:"))
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (defun nl/unpropertize-kill-ring ()
+    (setq kill-ring (mapcar 'substring-no-properties kill-ring)))
+
+  (add-hook 'kill-emacs-hook 'nl/unpropertize-kill-ring)
+    #+end_src
+
+Make additional things persistent.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (require 'savehist)
+
+  (setq kill-ring-max 50
+        history-length 50)
+
+  (setq savehist-additional-variables
+        '(bookmark-history
+          command-history
+          custom-variable-history
+          face-name-history
+          file-name-history
+          kill-ring
+          mark-ring
+          minibuffer-history
+          query-replace-history
+          read-char-history
+          read-expression-history
+          regexp-search-ring
+          register-alist
+          search-ring
+          set-variable-value-history))
 #+end_src
 
-*** saveplace
+Don't save duplicates in the history.
 
-#+begin_src emacs-lisp
-  (setq save-place-file (expand-file-name "saveplace" user-emacs-directory))
-  (setq save-place-limit 600)
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq history-delete-duplicates t)
 #+end_src
 
-*** savehist
-
-#+begin_src emacs-lisp
-  (setq history-length 300)
-  (setq savehist-save-minibuffer-history t)
-#+end_src
-
-*** Frames and Windows
-
-#+begin_src emacs-lisp
-  (setq frame-inhibit-implied-resize t
-        frame-resize-pixelwise t)
-
-  (setq window-resize-pixelwise nil)
-
-  (setq resize-mini-windows 'grow-only)
-#+end_src
-
-*** Scrolling
-
-#+begin_src emacs-lisp
-  (setq scroll-error-top-bottom t)
-
-  (setq scroll-preserve-screen-position t)
-
-  (setq scroll-conservatively 10)
-
-  (setq scroll-step 1)
-
-  (setq auto-window-vscroll nil)
-
-  (setq scroll-margin 0)
-
-  (setq hscroll-margin 2
-        hscroll-step 1)
-
-  (setq pixel-scroll-precision-use-momentum nil)
-  (pixel-scroll-precision-mode 1)
-#+end_src
-
-*** Mouse
-
-#+begin_src emacs-lisp
-  (setq mouse-yank-at-point nil)
-
-  (setq mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
-        mouse-wheel-scroll-amount-horizontal 2)
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (let (message-log-max)
+    (savehist-mode 1))
 #+end_src
 
 *** Cursor
 
-#+begin_src emacs-lisp
-  (blink-cursor-mode -1)
+Persist the cursor position.
 
-  (setq blink-matching-paren nil)
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq save-place-file (expand-file-name "saveplace" user-emacs-directory)
+        save-place-forget-unreadable-files t)
 
-  (setq x-stretch-cursor nil)
-
-  (setq-default cursor-in-non-selected-windows nil)
-  (setq highlight-nonselected-windows nil)
+  (let (message-log-max)
+    (save-place-mode 1))
 #+end_src
 
-*** Annoyances
+*** Compilation
 
-#+begin_src emacs-lisp
-  (setq visible-bell nil)
-  (setq ring-bell-function #'ignore)
+Changes to the behaviour of =M-x compile=.
 
-  (setq delete-pair-blink-delay 0.03)
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq compilation-always-kill t
+        compilation-ask-about-save nil
+        compilation-scroll-output 'first-error)
 #+end_src
 
-*** Indent and Formatting
+Recenter to the middle of the window for =M-x compile-goto-error= and =M-x embark-export=.
 
-#+begin_src emacs-lisp
-  (setq-default left-fringe-width  8)
-  (setq-default right-fringe-width 8)
-
-  (setq-default indicate-buffer-boundaries nil)
-  (setq-default indicate-empty-lines nil)
-
-  (setq-default word-wrap t)
-
-  (setq-default truncate-lines t)
-
-  (setq truncate-partial-width-windows nil)
-
-  (setq-default indent-tabs-mode nil
-                tab-width 4)
-
-  (setq-default tab-always-indent 'complete)
-
-  (setq read-extended-command-predicate #'command-completion-default-include-p)
-
-  (setq comment-multi-line t)
-
-  (setq-default fill-column 80)
-
-  (setq sentence-end-double-space nil)
-  (add-hook 'before-save-hook #'delete-trailing-whitespace)
-
-  (setq require-final-newline t)
-
-  (setq kill-do-not-save-duplicates t)
-
-  (setq comment-empty-lines t)
-
-  (setq lazy-highlight-initial-delay 0)
-#+end_src
-
-*** Modeline
-
-#+begin_src emacs-lisp
-  (setq display-time-default-load-average nil)
-  (setq line-number-mode t)
-  (setq column-number-mode t)
-#+end_src
-
-*** Filetype
-
-#+begin_src emacs-lisp
-  (setq python-indent-guess-indent-offset-verbose nil)
-
-  (setq sh-indent-after-continuation 'always)
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq next-error-recenter '(4))
 #+end_src
 
 *** Dired
@@ -613,85 +452,313 @@ Uses =use-package= instead of the =elpaca= macro. Make sure to use the =:wait= r
                                  "\\|^\\.project\\(?:ile\\)?\\'"
                                  "\\|^flycheck_.*"
                                  "\\|^flymake_.*"))
-
-  (setq ls-lisp-verbosity nil)
-  (setq ls-lisp-dirs-first t)
-#+end_src
-
-*** Font
-
-#+begin_src emacs-lisp
-  (setq global-text-scale-adjust-resizes-frames nil)
-
-  (setq treesit-font-lock-level 4)
-
-  (set-face-attribute 'default nil :family "RobotoMono Nerd Font" :height 240 :weight 'medium)
 #+end_src
 
 *** Ediff
+
+Configure to use a single frame and split windows horizontally.
 
 #+begin_src emacs-lisp
   (setq ediff-window-setup-function #'ediff-setup-windows-plain
         ediff-split-window-function #'split-window-horizontally)
 #+end_src
 
-*** Help
-
-#+begin_src emacs-lisp
-  (setq apropos-do-all t)
-
-  (setq help-enable-completion-autoload nil)
-  (setq help-enable-autoload nil)
-  (setq help-enable-symbol-autoload nil)
-#+end_src
-
-*** Encoding
-
-#+begin_src emacs-lisp
-  (prefer-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (setq ispell-dictionary "en_US")
-#+end_src
-
 *** OSX Specific
 
-#+begin_src emacs-lisp
-  (when (eq system-type 'darwin)
-    (setq ns-use-native-fullscreen t
-          mac-option-key-is-meta nil
-          mac-command-key-is-meta t
-          mac-command-modifier 'meta
-          mac-option-modifier nil
-          mac-use-title-bar nil)
-    (setq dired-use-ls-dired nil))
+Change the =M= key and title bar.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq mac-command-key-is-meta t
+        mac-command-modifier 'meta
+        mac-option-key-is-meta nil
+        mac-option-modifier nil
+        mac-use-title-bar nil)
+#+end_src
+
+Since OSX's =ls= doesn't support a variety of flags, use the =ls-lisp= version instead, particularly for =dired=.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq dired-use-ls-dired nil)
+  (require 'ls-lisp)
+  (setq ls-lisp-verbosity nil)
+  (setq ls-lisp-dirs-first t)
+  (setq ls-lisp-use-insert-directory-program nil)
+#+end_src
+
+Merge the system's and Emacs' clipboard.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq-default select-enable-clipboard t)
 #+end_src
 
 Makes sure that clipboard works properly in TTY.
 
 #+begin_src emacs-lisp
-  (defun copy-from-osx ()
+  (defun nl/copy-from-osx ()
     (shell-command-to-string "pbpaste"))
-  (defun paste-to-osx (text &optional push)
+
+  (defun nl/paste-to-osx (text &optional push)
     (let ((process-connection-type nil))
       (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
         (process-send-string proc text)
         (process-send-eof proc))))
-  (when (and (not (display-graphic-p))
-             (eq system-type 'darwin))
-    (setq interprogram-cut-function 'paste-to-osx)
-    (setq interprogram-paste-function 'copy-from-osx))
+
+  (when (not (display-graphic-p))
+    (setq interprogram-cut-function 'nl/paste-to-osx)
+    (setq interprogram-paste-function 'nl/copy-from-osx))
 #+end_src
 
-*** Add Hooks
+*** Miscellaneous
+
+Disable warnings from the legacy advice API.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq ad-redefinition-action 'accept)
+#+end_src
+
+Change the width of =display-line-numbers-mode=.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq-default display-line-numbers-width 3)
+  (setq-default display-line-numbers-widen t)
+#+end_src
+
+Improve responsiveness by delaying syntax highlighting during input.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq redisplay-skip-fontification-on-input t)
+#+end_src
+
+Collect and display all available documentation immediately.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq eldoc-documentation-strategy 'eldoc-documentation-compose-eagerly)
+#+end_src
+
+Follow symlinks without prompt.
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (setq vc-follow-symlinks t)
+#+end_src
+
+#+begin_src emacs-lisp :tangle "nl-defaults.el"
+  (provide 'nl-defaults)
+
+  ;;; nl-defaults.el ends here
+#+end_src
+
+** =nl-library.el=
 
 #+begin_src emacs-lisp
-  (add-hook 'after-init-hook #'global-auto-revert-mode)
-  (add-hook 'after-init-hook #'recentf-mode)
-  (add-hook 'after-init-hook #'savehist-mode)
-  (add-hook 'after-init-hook #'save-place-mode)
+  (require 'nl-library)
 #+end_src
+
+#+begin_src emacs-lisp :tangle "nl-library.el"
+  ;;; nl-library.el --- Helper functions file -*- lexical-binding: t; -*-
+
+
+  ;; This file is not part of GNU Emacs
+
+  ;; This file is free software; you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation; either version 3, or (at your option)
+  ;; any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; For a full copy of the GNU General Public License
+  ;; see <http://www.gnu.org/licenses/>.
+
+
+  ;;; Commentary:
+
+  ;; Some functions that are used elsewhere in the configuration.
+
+  ;;; Code:
+#+end_src
+
+#+begin_src emacs-lisp :tangle "nl-library.el"
+  ;;; nl-library.el ends here
+#+end_src
+
+** =nl-interface.el=
+
+#+begin_src emacs-lisp
+  (require 'nl-interface)
+#+end_src
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  ;;; nl-interface.el --- Interface file -*- lexical-binding: t; -*-
+
+
+  ;; This file is not part of GNU Emacs
+
+  ;; This file is free software; you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation; either version 3, or (at your option)
+  ;; any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; For a full copy of the GNU General Public License
+  ;; see <http://www.gnu.org/licenses/>.
+
+
+  ;;; Commentary:
+
+  ;; Adjustments to the Emacs interface.
+
+  ;;; Code:
+#+end_src
+
+*** Frame
+
+Make frame and switch to the =*scratch*= buffer.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (defun nl/make-frame ()
+    "Create a new frame and switch to *scratch* buffer."
+
+    (interactive)
+    (select-frame (make-frame))
+    (switch-to-buffer "*scratch*"))
+#+end_src
+
+Close the current frame and kill Emacs if it was the last frame.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (defun nl/kill-emacs ()
+    "Delete frame or kill Emacs if there is only one frame."
+
+    (interactive)
+    (condition-case nil
+        (delete-frame)
+      (error (save-buffers-kill-terminal))))
+#+end_src
+
+Change the default frame properties.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (require 'frame)
+
+  (setq default-frame-alist '((min-height . 1)
+                              (height . 45)
+                              (min-width  . 1)
+                              (width  . 81)
+                              (vertical-scroll-bars . nil)
+                              (internal-border-width . 24)
+                              (left-fringe . 0)
+                              (right-fringe . 0)
+                              (tool-bar-lines . 0)
+                              (menu-bar-lines . 1)))
+
+  (setq initial-frame-alist default-frame-alist)
+#+end_src
+
+Frame related bindings.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (bind-key "M-n"        #'nl/make-frame)
+  (bind-key "C-x C-c"    #'nl/kill-emacs)
+  (bind-key "M-`"        #'other-frame)
+  (bind-key "C-z"        nil)
+#+end_src
+
+*** Window
+
+Margin and divider mode.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (setq-default window-divider-default-right-width 24
+                window-divider-default-places 'right-only
+                left-margin-width 0
+                right-margin-width 0
+                window-combination-resize nil) ; Do not resize windows proportionally
+
+  (let (message-log-max)
+    (window-divider-mode 1))
+#+end_src
+
+Toggle the dedicated flag on the current window.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (defun nl/toggle-window-dedicated ()
+    "Toggle whether the current active window is dedicated or not."
+
+    (interactive)
+    (message
+     (if (let (window (get-buffer-window (current-buffer)))
+           (set-window-dedicated-p window (not (window-dedicated-p window))))
+         "Window '%s' is dedicated"
+       "Window '%s' is normal")
+     (current-buffer))
+    (force-window-update))
+
+  (bind-key "C-c d" #'nl/toggle-window-dedicated)
+#+end_src
+
+*** Buffer
+
+Change the size of temporary buffers.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (temp-buffer-resize-mode 1)
+  (setq temp-buffer-max-height 8)
+#+end_src
+
+Use unique buffer names.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (require 'uniquify)
+
+  (setq uniquify-buffer-name-style 'reverse
+        uniquify-separator " • "
+        uniquify-after-kill-buffer-p t
+        uniquify-ignore-buffers-re "^\\*")
+#+end_src
+
+Don't ask which buffer to switch to after killing a buffer.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (bind-key "C-x k" #'kill-current-buffer)
+#+end_src
+
+*** Keyboard
+
+Display the possible key bindings in incomplete commands.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (require 'which-key)
+
+  (setq which-key-idle-delay 0.2)
+  (which-key-mode 1)
+#+end_src
+
+*** Cursor
+
+*** Mouse
+
+*** Scroll
+
+*** Sound
+
+*** Text
+
+*** Helpful
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+#+end_src
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  ;;; nl-interface.el ends here
+#+end_src
+
 
 ** Which-Key
 
@@ -707,21 +774,7 @@ Displays keybindings.
     (which-key-mode))
 #+end_src
 
-** Uniquify
 
-#+begin_quote
-Makes buffer names with the same name unique.
-#+end_quote
-
-#+begin_src emacs-lisp
-  (use-package uniquify
-    :ensure nil
-    :custom
-    (uniquify-buffer-name-style 'reverse)
-    (uniquify-separator "•")
-    (uniquify-after-kill-buffer-p t)
-    (uniquify-ignore-buffers-re "^\\*"))
-#+end_src
 
 ** Tramp
 
@@ -1075,8 +1128,8 @@ COmpletion in Region FUnction; enhanced in-buffer completion.
            (cons 'orderless-literal-prefix word)))
 
     (orderless-define-completion-style orderless-fast
-      (orderless-style-dispatchers '(orderless-fast-dispatch))
-      (orderless-matching-styles '(orderless-literal orderless-regexp)))
+                                       (orderless-style-dispatchers '(orderless-fast-dispatch))
+                                       (orderless-matching-styles '(orderless-literal orderless-regexp)))
 
     (add-hook 'corfu-mode-hook
               (lambda ()

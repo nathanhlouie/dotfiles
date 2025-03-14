@@ -40,7 +40,7 @@
   "Get default color associated with symbol NAME."
   (cdr (assoc name base-colors--defaults)))
 
-(defcustom config-color-foreground (base-colors--get 'foreground)
+(defcustom color-foreground (base-colors--get 'foreground)
   ""
   :type 'color
   :group 'config)

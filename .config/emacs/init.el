@@ -29,10 +29,6 @@
 
 ;;; Code:
 
-(add-to-list 'load-path user-emacs-directory)
-(require 'layout)
-(require 'faces)
-
 (defvar elpaca-installer-version 0.8)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))

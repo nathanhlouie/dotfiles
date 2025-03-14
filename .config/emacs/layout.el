@@ -63,6 +63,6 @@
 ;; Hide org markup for README
 (setopt org-hide-emphasis-markers t)
 
-(provide 'nano-layout)
+(provide 'layout)
 
 ;;; layout.el ends here
