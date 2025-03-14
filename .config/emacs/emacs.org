@@ -742,17 +742,96 @@ Display the possible key bindings in incomplete commands.
 
 *** Cursor
 
+Set the appearance of the cursor
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (setq-default cursor-in-non-selected-windows nil
+                cursor-type '(hbar . 2)
+                cursor-intangible-mode t
+                x-stretch-cursor nil)
+
+  (blink-cursor-mode -1)
+#+end_src
+
 *** Mouse
+
+Use the =mouse-avoidance-mode=.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (setq-default mouse-yank-at-point t)
+  (mouse-avoidance-mode 'exile)
+#+end_src
+
+Activate the mouse in TTY mode.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (unless (display-graphic-p)
+    (xterm-mouse-mode 1)
+    (bind-key "<mouse-4>" #'scroll-down-line)
+    (bind-key "<mouse-5>" #'scroll-up-line))
+#+end_src
 
 *** Scroll
 
+Smoother scrolling.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (setq-default scroll-conservatively 101
+                scroll-margin 2
+                recenter-positions '(5 bottom))
+#+end_src
+
 *** Sound
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (setq-default visible-bell nil
+                ring-bell-function 'ignore)
+#+end_src
 
 *** Text
 
-*** Helpful
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (setq-default use-short-answers t
+                confirm-nonexistent-file-or-buffer nil)
+#+end_src
+
+Replace the region when inserting text.
 
 #+begin_src emacs-lisp :tangle "nl-interface.el"
+  (delete-selection-mode 1)
+#+end_src
+
+A smarter fill/unfill command.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (defun nl/fill-unfill ()
+    "Like `fill-paragraph', but unfill if used twice."
+
+    (interactive)
+    (let ((fill-column
+           (if (eq last-command #'nl/fill-unfill)
+               (progn (setq this-command nil)
+                      (point-max))
+             fill-column)))
+      (call-interactively #'fill-paragraph)))
+
+  (bind-key "M-q"  #'nl/fill-unfill)
+#+end_src
+
+*** =helpful.el=
+
+An alternative to the built-in help that provides more contextual information.
+
+#+begin_src emacs-lisp :tangle "nl-interface.el"
+  (require 'helpful)
+
+  (setq help-window-select t)
+  (bind-key "C-h f" #'helpful-callable)
+  (bind-key "C-h v" #'helpful-variable)
+  (bind-key "C-h k" #'helpful-key)
+  (bind-key "C-c C-d" #'helpful-at-point)
+  (bind-key "C-h F" #'helpful-function)
+  (bind-key "C-h C" #'helpful-command)
 #+end_src
 
 #+begin_src emacs-lisp :tangle "nl-interface.el"
@@ -760,22 +839,144 @@ Display the possible key bindings in incomplete commands.
 #+end_src
 
 
-** Which-Key
-
-#+begin_quote
-Displays keybindings.
-#+end_quote
+** =nl-visual.el=
 
 #+begin_src emacs-lisp
-  (use-package which-key
-    :custom
-    (which-key-idle-delay 0.2)
-    :config
-    (which-key-mode))
+  (require 'nl-interface)
+#+end_src
+
+#+begin_src emacs-lisp :tangle "nl-visual.el"
+  ;;; nl-visual.el --- Visual adjustments file -*- lexical-binding: t; -*-
+
+
+  ;; This file is not part of GNU Emacs
+
+  ;; This file is free software; you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation; either version 3, or (at your option)
+  ;; any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; For a full copy of the GNU General Public License
+  ;; see <http://www.gnu.org/licenses/>.
+
+
+  ;;; Commentary:
+
+  ;; Adjustments to the visual appearance of Emacs.
+
+  ;;; Code:
+#+end_src
+
+*** Colours
+
+#+begin_src emacs-lisp :tangle "nl-visual.el"
+  (require 'nano-theme)
+  (setq nano-fonts-use t)
+  (nano-light)
+  (nano-mode)
+
+
+  (defun nl/set-face (face style)
+    "Reset FACE and make it inherit STYLE."
+    (set-face-attribute face nil
+                        :foreground 'unspecified :background 'unspecified
+                        :family     'unspecified :slant      'unspecified
+                        :weight     'unspecified :height     'unspecified
+                        :underline  'unspecified :overline   'unspecified
+                        :box        'unspecified :inherit    style))
+  (nl/set-face 'italic 'nano-faded)
+#+end_src
+
+*** Fonts
+
+The font stack:
+- Default: RobotoMono Nerd Font 14pt Light
+- Italic: VictorMono Nerd Font 14pt Semilight
+- Bold: RobotoMono Nerd Font 14pt Regular
+- Unicode: Inconsolata Nerd Font 16pt Light
+
+#+begin_src emacs-lisp :tangle "nl-visual.el"
+  (set-face-attribute 'default nil
+                      :family "Roboto Mono"
+                      :weight 'light
+                      :height 140)
+
+  (set-face-attribute 'bold nil
+                      :family "Roboto Mono"
+                      :weight 'regular)
+
+  (set-face-attribute 'italic nil
+                      :family "Victor Mono"
+                      :weight 'semilight
+                      :slant 'italic)
+
+  (set-fontset-font t 'unicode
+                    (font-spec :name "Inconsolata Light"
+                               :size 16)
+                    nil)
+
+  (set-fontset-font t '(#xe000 . #xffdd)
+                    (font-spec :name "RobotoMono Nerd Font"
+                               :size 12)
+                    nil)
+#+end_src
+
+*** Typography
+
+#+begin_src emacs-lisp :tangle "nl-visual.el"
+  (setq-default fill-column 80
+                sentence-end-double-space nil
+                bidi-paragraph-direction 'left-to-right
+                truncate-string-ellipsis "…")
+#+end_src
+
+#+begin_src emacs-lisp :tangle "nl-visual.el"
+  (require 'nano-theme)
+
+  ;; Nicer glyphs for continuation and wrap
+  (set-display-table-slot standard-display-table
+                          'truncation (make-glyph-code ?… 'nano-faded))
+
+  (defface wrap-symbol-face
+    '((t (:family "Fira Code"
+                  :inherit nano-faded)))
+    "Specific face for wrap symbol")
+
+  (set-display-table-slot standard-display-table
+                          'wrap (make-glyph-code ?↩ 'wrap-symbol-face))
+#+end_src
+
+Fix a bug on OSX in term mode and using zsh.
+
+#+begin_src emacs-lisp :tangle "nl-visual.el"
+  (when (eq system-type 'darwin)
+    (add-hook 'term-mode-hook
+              (lambda ()
+                (setq buffer-display-table (make-display-table)))))
+#+end_src
+
+Make sure underline is positioned at the very bottom.
+
+#+begin_src emacs-lisp :tangle "nl-visual.el"
+  (setq x-underline-at-descent-line nil
+        x-use-underline-position-properties t
+        underline-minimum-offset 10)
+#+end_src
+
+#+begin_src emacs-lisp :tangle "nl-visual.el"
+  ;;; nl-visual.el ends here
 #+end_src
 
 
-
+** =nl-editing.el=
+** =nl-completion.el=
+** =nl-minibuffer.el=
+** =nl-org.el=
 ** Tramp
 
 #+begin_quote
