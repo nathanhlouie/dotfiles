@@ -838,11 +838,10 @@ An alternative to the built-in help that provides more contextual information.
   ;;; nl-interface.el ends here
 #+end_src
 
-
 ** =nl-visual.el=
 
 #+begin_src emacs-lisp
-  (require 'nl-interface)
+  (require 'nl-visual)
 #+end_src
 
 #+begin_src emacs-lisp :tangle "nl-visual.el"
@@ -972,11 +971,15 @@ Make sure underline is positioned at the very bottom.
   ;;; nl-visual.el ends here
 #+end_src
 
-
 ** =nl-editing.el=
 ** =nl-completion.el=
 ** =nl-minibuffer.el=
 ** =nl-org.el=
+
+#+begin_src emacs-lisp
+  ;;; init.el ends here
+#+end_src
+
 ** Tramp
 
 #+begin_quote
