@@ -322,6 +322,14 @@ If Emacs crashes, use =M-x recover-session= to recover the files.
   (setq auto-save-include-big-deletions t)
 #+end_src
 
+*** Tramp
+
+#+begin_src emacs-lisp
+  (setq tramp-terminal-type "tramp")
+#+end_src
+
+If the above doesn’t work, use =sshx= instead of =ssh=. See this [[https://www.emacswiki.org/emacs/TrampMode#h5o-9][link]] for more details.
+
 *** Backups
 
 Don't make backup or lock files to avoid cluttering.
@@ -980,17 +988,7 @@ Make sure underline is positioned at the very bottom.
   ;;; init.el ends here
 #+end_src
 
-** Tramp
 
-#+begin_quote
-Transparent Remote Access, Multiple Protocols, editing remote files
-#+end_quote
-
-#+begin_src emacs-lisp
-  (setq tramp-terminal-type "tramp")
-#+end_src
-
-If the above doesn’t work, use =sshx= instead of =ssh=. See this [[https://www.emacswiki.org/emacs/TrampMode#h5o-9][link]] for more details.
 
 ** GCMH
 
