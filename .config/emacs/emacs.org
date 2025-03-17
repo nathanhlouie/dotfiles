@@ -989,20 +989,6 @@ Make sure underline is positioned at the very bottom.
 #+end_src
 
 
-
-** GCMH
-
-#+begin_quote
-The Garbage Collector Magic Hack.
-#+end_quote
-
-#+begin_src emacs-lisp
-  (use-package gcmh
-    :demand t
-    :config
-    (gcmh-mode))
-#+end_src
-
 ** Exec Path From Shell
 
 #+begin_quote
