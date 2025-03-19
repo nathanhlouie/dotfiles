@@ -1,6 +1,6 @@
 ** dotfiles
 
-Managed using [[https://www.gnu.org/s/stow/manual/stow.html][GNU Stow]]. This configuration is meant for my use cases and may not work on your system directly.
+Managed using [[https://www.gnu.org/s/stow/manual/stow.html][GNU Stow]].
 
 #+begin_src bash
   stow . --target=$HOME
