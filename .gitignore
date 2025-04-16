@@ -1,17 +1,1 @@
 .DS_Store
-.config/emacs/auto-save/
-.config/emacs/auto-save-list/
-.config/emacs/eln-cache/
-.config/emacs/elpa/
-.config/emacs/elpaca/
-.config/emacs/eshell/
-.config/emacs/forge-database.sqlite
-.config/emacs/history
-.config/emacs/places
-.config/emacs/projects
-.config/emacs/projectile-bookmarks.eld
-.config/emacs/recentf
-.config/emacs/saveplace
-.config/emacs/tramp
-.config/emacs/transient/
-.config/emacs/tree-sitter/
