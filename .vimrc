@@ -60,16 +60,6 @@ set wildmode=longest:full,full
 set winminwidth=4
 setglobal tags-=./tags tags-=./tags; tags^=./tags;
 
-augroup RelativeNormal
-  autocmd!
-  autocmd InsertLeave * silent! set relativenumber
-augroup END
-
-augroup LineNumberInsert
-  autocmd!
-  autocmd InsertEnter * silent! set number norelativenumber
-augroup END
-
 augroup highlightYankedText
   autocmd!
   autocmd TextYankPost * silent! call FlashYankedText()
